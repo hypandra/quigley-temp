@@ -3,13 +3,35 @@
 import { useState, useRef, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { TimePeriod, Persona, TIME_PERIODS, getRandomPeriod, getRandomPersona } from '@/lib/time-periods'
-import { HISTORY_ENTITIES, type HistoryEntity } from '@/lib/history-entities'
+
+
 import { TIMELINE_EVENTS } from '@/lib/timeline-events'
 import { cn } from '@/lib/utils'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
+}
+
+interface LookupEntity {
+  id: string
+  label: string
+  description: string
+  wiki: string
+}
+
+function parseBrackets(text: string): Array<{ type: 'text' | 'term'; value: string }> {
+  const segments: Array<{ type: 'text' | 'term'; value: string }> = []
+  const regex = /\[\[(.+?)\]\]/g
+  let lastIndex = 0
+  let match: RegExpExecArray | null
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) segments.push({ type: 'text', value: text.slice(lastIndex, match.index) })
+    segments.push({ type: 'term', value: match[1] })
+    lastIndex = match.index + match[0].length
+  }
+  if (lastIndex < text.length) segments.push({ type: 'text', value: text.slice(lastIndex) })
+  return segments
 }
 
 // iOS audio unlock: tiny silent MP3 played synchronously in gesture to unlock audio context
@@ -103,6 +125,14 @@ function useTTS() {
     setSpeakingIdx(null)
   }, [])
 
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel()
+      }
+    }
+  }, [])
+
   return { speakingIdx, speak, stop }
 }
 
@@ -119,60 +149,6 @@ interface Connection {
 }
 
 type AppState = 'home' | 'arriving' | 'chatting' | 'effects' | 'timeline'
-
-interface EntitySegment {
-  type: 'text' | 'entity'
-  value: string
-  entity?: HistoryEntity
-}
-
-const ENTITY_MATCHES = HISTORY_ENTITIES.flatMap(entity => {
-  const entries = [entity.label, ...(entity.aliases ?? [])]
-  return entries.map(entry => ({ entry, entity }))
-})
-
-const ENTITY_MAP = new Map<string, HistoryEntity>(
-  ENTITY_MATCHES.map(item => [item.entry.toLowerCase(), item.entity])
-)
-
-const ENTITY_REGEX = new RegExp(
-  `\\b(${ENTITY_MATCHES.map(item => item.entry)
-    .sort((a, b) => b.length - a.length)
-    .map(entry => entry.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-    .join('|')})\\b`,
-  'gi'
-)
-
-function splitEntities(text: string): EntitySegment[] {
-  const segments: EntitySegment[] = []
-  let lastIndex = 0
-  ENTITY_REGEX.lastIndex = 0
-
-  let match: RegExpExecArray | null
-  while ((match = ENTITY_REGEX.exec(text)) !== null) {
-    const start = match.index
-    const end = start + match[0].length
-
-    if (start > lastIndex) {
-      segments.push({ type: 'text', value: text.slice(lastIndex, start) })
-    }
-
-    const entity = ENTITY_MAP.get(match[0].toLowerCase())
-    if (entity) {
-      segments.push({ type: 'entity', value: match[0], entity })
-    } else {
-      segments.push({ type: 'text', value: match[0] })
-    }
-
-    lastIndex = end
-  }
-
-  if (lastIndex < text.length) {
-    segments.push({ type: 'text', value: text.slice(lastIndex) })
-  }
-
-  return segments
-}
 
 function formatYearsAgo(year: number, currentYear: number) {
   const diff = Math.max(0, currentYear - year)
@@ -213,7 +189,9 @@ function Home() {
   const [isStreaming, setIsStreaming] = useState(false)
   const [showEffects, setShowEffects] = useState(false)
   const [showTimeline, setShowTimeline] = useState(false)
-  const [selectedEntity, setSelectedEntity] = useState<HistoryEntity | null>(null)
+  const [selectedEntity, setSelectedEntity] = useState<LookupEntity | null>(null)
+  const [showMarks, setShowMarks] = useState(true)
+  const [searchInput, setSearchInput] = useState('')
   const [arrivalStep, setArrivalStep] = useState(0)
   const [previousStop, setPreviousStop] = useState<JourneyStop | null>(null)
   const [connections, setConnections] = useState<Connection[]>([])
@@ -221,6 +199,77 @@ function Home() {
   const tts = useTTS()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
+  const connectionsAbortRef = useRef<AbortController | null>(null)
+  const sessionIdRef = useRef<string>(crypto.randomUUID())
+  const defineAbortRef = useRef<AbortController | null>(null)
+  const currentStopRef = useRef(currentStop)
+  currentStopRef.current = currentStop
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort()
+      connectionsAbortRef.current?.abort()
+      defineAbortRef.current?.abort()
+    }
+  }, [])
+
+  async function lookupTerm(term: string) {
+    const stop = currentStopRef.current
+    if (!stop) return
+
+    setSelectedEntity({
+      id: `lookup-${Date.now()}`,
+      label: term,
+      description: '',
+      wiki: `https://simple.wikipedia.org/w/index.php?search=${encodeURIComponent(term)}`,
+    })
+
+    defineAbortRef.current?.abort()
+    const controller = new AbortController()
+    defineAbortRef.current = controller
+
+    try {
+      const res = await fetch('/api/define', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          term,
+          era: stop.period.era,
+          year: stop.period.yearLabel,
+          location: stop.period.location,
+        }),
+        signal: controller.signal,
+      })
+      if (!res.ok) throw new Error()
+      const { definition } = await res.json()
+      setSelectedEntity(prev => prev?.label === term ? { ...prev, description: definition } : prev)
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return
+      setSelectedEntity(prev => prev?.label === term ? { ...prev, description: '' } : prev)
+    }
+  }
+
+  // Text selection detection — select text in assistant messages to look it up
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>
+    function onSelChange() {
+      clearTimeout(timeout)
+      timeout = setTimeout(() => {
+        const sel = window.getSelection()
+        if (!sel || sel.isCollapsed) return
+        const text = sel.toString().trim()
+        if (text.length < 2 || text.length > 100) return
+        const range = sel.getRangeAt(0)
+        const node = range.commonAncestorContainer
+        const el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node as Element
+        if (!el?.closest('[data-assistant-msg]')) return
+        lookupTerm(text)
+      }, 500)
+    }
+    document.addEventListener('selectionchange', onSelChange)
+    return () => { document.removeEventListener('selectionchange', onSelChange); clearTimeout(timeout) }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Restore location from URL params on mount
   useEffect(() => {
@@ -274,6 +323,8 @@ function Home() {
     const prevStop = currentStop
     setPreviousStop(prevStop)
 
+    abortRef.current?.abort()
+    connectionsAbortRef.current?.abort()
     tts.stop()
     setCurrentStop(nextStop)
     setJourney(prev => [...prev, nextStop])
@@ -289,9 +340,12 @@ function Home() {
 
     if (prevStop) {
       setConnectionsLoading(true)
+      const connController = new AbortController()
+      connectionsAbortRef.current = connController
       fetch('/api/connections', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: connController.signal,
         body: JSON.stringify({
           fromEra: prevStop.period.era,
           fromYear: prevStop.period.yearLabel,
@@ -310,26 +364,31 @@ function Home() {
     }
   }
 
-  async function sendMessage(e: React.FormEvent) {
-    e.preventDefault()
-    if (!input.trim() || isStreaming || !currentStop) return
+  async function sendText(text: string) {
+    if (!text.trim() || isStreaming || !currentStop) return
 
-    const userMessage: Message = { role: 'user', content: input.trim() }
+    const userMessage: Message = { role: 'user', content: text.trim() }
     const newMessages = [...messages, userMessage]
     setMessages(newMessages)
     setInput('')
     setIsStreaming(true)
 
     try {
+      abortRef.current?.abort()
+      const controller = new AbortController()
+      abortRef.current = controller
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           messages: newMessages,
           persona: currentStop.persona,
           era: currentStop.period.era,
+          eraId: currentStop.period.id,
           year: currentStop.period.yearLabel,
           location: currentStop.period.location,
+          sessionId: sessionIdRef.current,
         }),
       })
 
@@ -340,6 +399,7 @@ function Home() {
 
       const decoder = new TextDecoder()
       let assistantContent = ''
+      let buffer = ''
 
       setMessages(prev => [...prev, { role: 'assistant', content: '' }])
 
@@ -347,12 +407,14 @@ function Home() {
         const { done, value } = await reader.read()
         if (done) break
 
-        const chunk = decoder.decode(value, { stream: true })
-        const lines = chunk.split('\n')
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() ?? ''
 
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6)
+          const trimmed = line.replace(/\r$/, '')
+          if (trimmed.startsWith('data: ')) {
+            const data = trimmed.slice(6)
             if (data === '[DONE]') continue
             try {
               const parsed = JSON.parse(data)
@@ -372,6 +434,9 @@ function Home() {
         }
       }
     } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        return
+      }
       console.error('Chat error:', err)
       setMessages(prev => [
         ...prev,
@@ -464,12 +529,20 @@ function Home() {
       <div className="min-h-dvh flex flex-col items-center justify-center p-6 text-center">
         <div className="max-w-md space-y-6">
           <div className={stepClass(0)}>
-            <div
-              className="mx-auto h-20 w-20 rounded-2xl flex items-center justify-center text-4xl"
-              style={{ backgroundColor: currentStop.period.color + '22', border: `2px solid ${currentStop.period.color}` }}
-            >
-              ⏳
-            </div>
+            {currentStop.persona.portrait ? (
+              <img
+                src={currentStop.persona.portrait}
+                alt={currentStop.persona.name}
+                className="mx-auto h-[200px] w-[200px] rounded-full object-cover shadow-lg"
+              />
+            ) : (
+              <div
+                className="mx-auto h-20 w-20 rounded-full flex items-center justify-center text-4xl shadow-lg"
+                style={{ backgroundColor: currentStop.period.color + '22' }}
+              >
+                ⏳
+              </div>
+            )}
           </div>
           <div className={cn('space-y-2', stepClass(1))}>
             {previousStop && (
@@ -516,7 +589,7 @@ function Home() {
             </div>
           )}
           <div className={cn('pt-2', stepClass(4))}>
-            <p className="text-xs text-muted-foreground text-pretty tabular-nums">
+            <p className="text-xl text-muted-foreground text-pretty tabular-nums">
               You&apos;ll meet <strong className="text-foreground">{currentStop.persona.name}</strong>, a {currentStop.persona.age}-year-old {currentStop.persona.role}
             </p>
           </div>
@@ -539,47 +612,57 @@ function Home() {
       <div className="flex flex-col h-dvh">
         {/* Header */}
         <div className="shrink-0 border-b px-4 py-3">
-          <div className="max-w-2xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="max-w-2xl mx-auto space-y-1.5">
+            {/* Row 1: Globe home + action buttons */}
+            <div className="flex items-center justify-between">
               <button
                 onClick={() => { tts.stop(); setState('home'); setCurrentStop(null); syncUrlParams(null, null) }}
-                className="rounded-xl px-3 py-2 text-xs font-bold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors shrink-0"
+                className="h-9 w-9 rounded-xl flex items-center justify-center bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors shrink-0"
                 title="Back to home"
               >
-                Here &amp; Now
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
               </button>
-              <div
-                className="h-10 w-10 rounded-xl flex items-center justify-center text-lg font-bold"
-                style={{ backgroundColor: currentStop.period.color + '22', color: currentStop.period.color }}
-              >
-                {currentStop.persona.name[0]}
-              </div>
-              <div>
-                <p className="font-semibold text-sm text-pretty">{currentStop.persona.name}</p>
-                <p className="text-xs text-muted-foreground text-pretty tabular-nums">
-                  {currentStop.persona.role} &middot; {currentStop.period.yearLabel}
-                </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={viewEffects}
+                  className="text-xs px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
+                >
+                  Ripples
+                </button>
+                <button
+                  onClick={viewTimeline}
+                  className="text-xs px-3 py-1.5 rounded-lg border border-border bg-card text-foreground hover:bg-secondary/60 transition-colors"
+                >
+                  Timeline
+                </button>
+                <button
+                  onClick={jump}
+                  className="text-xs px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
+                  Jump ⚡
+                </button>
               </div>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={viewEffects}
-                className="text-xs px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
-              >
-                Ripples
-              </button>
-              <button
-                onClick={viewTimeline}
-                className="text-xs px-3 py-1.5 rounded-lg border border-border bg-card text-foreground hover:bg-secondary/60 transition-colors"
-              >
-                Timeline
-              </button>
-              <button
-                onClick={jump}
-                className="text-xs px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                Jump ⚡
-              </button>
+            {/* Row 2: Persona avatar + info */}
+            <div className="flex items-center gap-2">
+              {currentStop.persona.portrait ? (
+                <img
+                  src={currentStop.persona.portrait}
+                  alt={currentStop.persona.name}
+                  className="h-12 w-12 rounded-full object-cover shrink-0"
+                />
+              ) : (
+                <div
+                  className="h-12 w-12 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                  style={{ backgroundColor: currentStop.period.color + '22', color: currentStop.period.color }}
+                >
+                  {currentStop.persona.name[0]}
+                </div>
+              )}
+              <p className="text-sm truncate">
+                <span className="font-semibold">{currentStop.persona.name}</span>
+                <span className="text-muted-foreground"> &middot; {currentStop.persona.role} &middot; {currentStop.period.yearLabel}</span>
+              </p>
             </div>
           </div>
         </div>
@@ -796,7 +879,7 @@ function Home() {
                       ].map((q, i) => (
                         <button
                           key={i}
-                          onClick={() => setInput(q)}
+                          onClick={() => sendText(q)}
                           className="text-xs px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
                         >
                           {q}
@@ -813,6 +896,7 @@ function Home() {
                   >
                     <div className={cn('max-w-[85%]', msg.role === 'assistant' && 'group')}>
                       <div
+                        data-assistant-msg={msg.role === 'assistant' ? '' : undefined}
                         className={cn(
                           'rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap text-pretty',
                           msg.role === 'user'
@@ -820,36 +904,19 @@ function Home() {
                             : 'bg-card border rounded-bl-md'
                         )}
                       >
-                        {msg.role === 'assistant' ? (
-                          splitEntities(msg.content || (isStreaming ? '...' : '')).map((segment, segmentIndex) => {
-                            if (segment.type === 'entity' && segment.entity) {
-                              const isActive = selectedEntity?.id === segment.entity.id
-                              return (
-                                <button
-                                  key={`${segment.entity.id}-${segmentIndex}`}
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedEntity(prev => prev !== null && prev.id === segment.entity!.id ? null : segment.entity!)
-                                  }}
-                                  className={cn(
-                                    'underline decoration-dotted decoration-primary/70 underline-offset-2 rounded-sm px-0.5 -mx-0.5 text-foreground',
-                                    'hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                                    isActive && 'bg-primary/15'
-                                  )}
-                                >
-                                  {segment.value}
-                                </button>
-                              )
-                            }
-                            return <span key={`text-${segmentIndex}`}>{segment.value}</span>
-                          })
-                        ) : (
-                          msg.content || (isStreaming ? '...' : '')
-                        )}
+                        {msg.role === 'assistant' && msg.content
+                          ? (showMarks
+                              ? parseBrackets(msg.content).map((seg, j) =>
+                                  seg.type === 'term'
+                                    ? <button key={j} onClick={() => lookupTerm(seg.value)} className="text-foreground border-b border-dotted border-primary/50 hover:border-primary">{seg.value}</button>
+                                    : <span key={j}>{seg.value}</span>
+                                )
+                              : msg.content.replace(/\[\[(.+?)\]\]/g, '$1'))
+                          : (msg.content || (isStreaming ? '...' : ''))}
                       </div>
                       {msg.role === 'assistant' && msg.content && !isStreaming && (
                         <button
-                          onClick={() => tts.speakingIdx === i ? tts.stop() : tts.speak(msg.content, i, currentStop?.persona)}
+                          onClick={() => tts.speakingIdx === i ? tts.stop() : tts.speak(msg.content.replace(/\[\[(.+?)\]\]/g, '$1'), i, currentStop?.persona)}
                           className="mt-1 text-xs text-muted-foreground hover:text-foreground transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
                         >
                           {tts.speakingIdx === i ? '■ Stop' : '▶ Listen'}
@@ -859,13 +926,27 @@ function Home() {
                   </div>
                 ))}
 
-                {selectedEntity && (
-                  <div className="md:hidden">
+                <div className="md:hidden space-y-2">
+                  {messages.length > 0 && (
+                    <form onSubmit={(e) => { e.preventDefault(); const v = searchInput.trim(); if (v) lookupTerm(v); setSearchInput('') }}>
+                      <input
+                        value={searchInput}
+                        onChange={e => setSearchInput(e.target.value)}
+                        placeholder="Look up anything..."
+                        className="w-full rounded-lg border bg-background px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-ring"
+                      />
+                    </form>
+                  )}
+                  {selectedEntity && (
                     <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-sm font-semibold text-balance">{selectedEntity.label}</p>
-                          <p className="text-xs text-muted-foreground text-pretty">{selectedEntity.description}</p>
+                          {selectedEntity.description ? (
+                            <p className="text-xs text-muted-foreground text-pretty">{selectedEntity.description}</p>
+                          ) : (
+                            <p className="text-xs text-muted-foreground animate-pulse">Looking it up...</p>
+                          )}
                         </div>
                         <button
                           type="button"
@@ -884,53 +965,76 @@ function Home() {
                         Simple English Wikipedia
                       </a>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
                 <div ref={messagesEndRef} />
               </div>
 
               <aside className="hidden md:block md:col-span-1">
                 <div className="sticky top-4 space-y-3">
-                  <div className="rounded-2xl border bg-card p-4 space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-semibold text-balance">Explorer Notes</p>
-                        <p className="text-xs text-muted-foreground text-pretty">
-                          Click an underlined word to learn about people, places, or ideas.
-                        </p>
+                  {messages.length > 0 && (
+                    <div className="rounded-2xl border bg-card p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-balance">Explorer Notes</p>
+                          <p className="text-xs text-muted-foreground text-pretty">
+                            Select text or search to explore.
+                          </p>
+                        </div>
+                        <div className="flex gap-1.5">
+                          <button
+                            onClick={() => setShowMarks(p => !p)}
+                            className="text-xs px-2 py-1 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                          >
+                            {showMarks ? 'Hide' : 'Show'} marks
+                          </button>
+                          {selectedEntity && (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedEntity(null)}
+                              className="text-xs px-2 py-1 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      {selectedEntity && (
-                        <button
-                          type="button"
-                          onClick={() => setSelectedEntity(null)}
-                          className="text-xs px-2 py-1 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                        >
-                          Clear
-                        </button>
+
+                      <form onSubmit={(e) => { e.preventDefault(); const v = searchInput.trim(); if (v) lookupTerm(v); setSearchInput('') }}>
+                        <input
+                          value={searchInput}
+                          onChange={e => setSearchInput(e.target.value)}
+                          placeholder="Look up anything..."
+                          className="w-full rounded-lg border bg-background px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-ring"
+                        />
+                      </form>
+
+                      {selectedEntity ? (
+                        <div className="space-y-2">
+                          <div>
+                            <p className="text-sm font-semibold text-balance">{selectedEntity.label}</p>
+                            {selectedEntity.description ? (
+                              <p className="text-xs text-muted-foreground text-pretty">{selectedEntity.description}</p>
+                            ) : (
+                              <p className="text-xs text-muted-foreground animate-pulse">Looking it up...</p>
+                            )}
+                          </div>
+                          <a
+                            href={selectedEntity.wiki}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xs font-medium text-primary underline underline-offset-2"
+                          >
+                            Simple English Wikipedia
+                          </a>
+                        </div>
+                      ) : (
+                        <div className="rounded-xl border border-dashed border-border p-3 text-xs text-muted-foreground text-pretty">
+                          Select text in the chat, tap a marked term, or search for anything.
+                        </div>
                       )}
                     </div>
-
-                    {selectedEntity ? (
-                      <div className="space-y-2">
-                        <div>
-                          <p className="text-sm font-semibold text-balance">{selectedEntity.label}</p>
-                          <p className="text-xs text-muted-foreground text-pretty">{selectedEntity.description}</p>
-                        </div>
-                        <a
-                          href={selectedEntity.wiki}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-xs font-medium text-primary underline underline-offset-2"
-                        >
-                          Simple English Wikipedia
-                        </a>
-                      </div>
-                    ) : (
-                      <div className="rounded-xl border border-dashed border-border p-3 text-xs text-muted-foreground text-pretty">
-                        No highlights yet. Ask about places, inventions, or famous people.
-                      </div>
-                    )}
-                  </div>
+                  )}
 
                   <div className="rounded-2xl border bg-card p-4 space-y-2">
                     <p className="text-sm font-semibold text-balance">Timeline Quick Look</p>
@@ -952,7 +1056,7 @@ function Home() {
 
         {/* Input */}
         <div className="shrink-0 border-t p-4">
-          <form onSubmit={sendMessage} className="max-w-2xl mx-auto flex gap-2">
+          <form onSubmit={(e) => { e.preventDefault(); sendText(input) }} className="max-w-2xl mx-auto flex gap-2">
             <input
               ref={inputRef}
               type="text"
