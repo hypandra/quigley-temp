@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
-import { TimePeriod, Persona, getRandomPeriod, getRandomPersona } from '@/lib/time-periods'
+import { useState, useRef, useEffect, useCallback, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { TimePeriod, Persona, TIME_PERIODS, getRandomPeriod, getRandomPersona } from '@/lib/time-periods'
 import { HISTORY_ENTITIES, type HistoryEntity } from '@/lib/history-entities'
 import { TIMELINE_EVENTS } from '@/lib/timeline-events'
 import { cn } from '@/lib/utils'
@@ -182,7 +183,28 @@ function formatYearsAgo(year: number, currentYear: number) {
     : `${formatter.format(diff)} years ago`
 }
 
-export default function Home() {
+function syncUrlParams(period: TimePeriod | null, persona: Persona | null) {
+  const url = new URL(window.location.href)
+  if (period && persona) {
+    url.searchParams.set('era', period.id)
+    url.searchParams.set('persona', persona.name)
+  } else {
+    url.searchParams.delete('era')
+    url.searchParams.delete('persona')
+  }
+  window.history.replaceState({}, '', url.toString())
+}
+
+export default function Page() {
+  return (
+    <Suspense>
+      <Home />
+    </Suspense>
+  )
+}
+
+function Home() {
+  const searchParams = useSearchParams()
   const [state, setState] = useState<AppState>('home')
   const [journey, setJourney] = useState<JourneyStop[]>([])
   const [currentStop, setCurrentStop] = useState<JourneyStop | null>(null)
@@ -199,6 +221,24 @@ export default function Home() {
   const tts = useTTS()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // Restore location from URL params on mount
+  useEffect(() => {
+    const eraId = searchParams.get('era')
+    const personaName = searchParams.get('persona')
+    if (!eraId || !personaName) return
+
+    const period = TIME_PERIODS.find(p => p.id === eraId)
+    if (!period) return
+
+    const persona = period.personas.find(p => p.name === personaName)
+    if (!persona) return
+
+    const stop = { period, persona }
+    setCurrentStop(stop)
+    setJourney([stop])
+    setState('chatting')
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -245,6 +285,7 @@ export default function Home() {
     setConnections([])
     setConnectionsLoading(false)
     setState('arriving')
+    syncUrlParams(period, persona)
 
     if (prevStop) {
       setConnectionsLoading(true)
@@ -501,7 +542,7 @@ export default function Home() {
           <div className="max-w-2xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => { tts.stop(); setState('home'); setCurrentStop(null) }}
+                onClick={() => { tts.stop(); setState('home'); setCurrentStop(null); syncUrlParams(null, null) }}
                 className="rounded-xl px-3 py-2 text-xs font-bold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors shrink-0"
                 title="Back to home"
               >
