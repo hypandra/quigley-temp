@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { config } from '@/lib/config'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: config.name,
-  description: `Welcome to ${config.name}`,
+  title: 'Rippled Echoes — Time Machine for Curious Kids',
+  description: 'Travel through time, meet people from history, and discover how the past connects to today.',
 }
 
 export default function RootLayout({
@@ -16,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body className={inter.className}>{children}</body>
     </html>
   )
