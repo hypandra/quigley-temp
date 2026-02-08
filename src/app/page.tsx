@@ -475,16 +475,6 @@ function Home() {
   }
 
   const currentYear = new Date().getFullYear()
-  const timelineYears = journey.map(stop => stop.period.year)
-  const timelineEventYears = TIMELINE_EVENTS.map(event => event.year)
-  const timelineMinYear = Math.min(
-    ...timelineYears,
-    ...timelineEventYears,
-    currentYear
-  )
-  const timelineMaxYear = currentYear
-  const timelineRange = Math.max(1, timelineMaxYear - timelineMinYear)
-
   const timelineStops = journey.map((stop, index) => ({
     key: `${stop.period.id}-${index}`,
     name: stop.period.era,
@@ -834,55 +824,69 @@ function Home() {
                         Oldest · {oldestStop?.yearLabel ?? 'Unknown'}
                       </span>
                     </div>
-                    <div className="relative h-96">
-                      <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
-
-                      {TIMELINE_EVENTS.map(event => {
-                        const position = ((timelineMaxYear - event.year) / timelineRange) * 100
-                        return (
-                          <div
-                            key={event.id}
-                            className="absolute left-0 right-0 pl-10 pr-4"
-                            style={{ top: `${position}%` }}
-                          >
-                            <div className="absolute left-3 top-1 size-2 rounded-full bg-muted-foreground" />
-                            <div className="rounded-xl border border-dashed border-border bg-background/40 px-3 py-2">
-                              <p className="text-xs font-semibold text-balance">{event.label}</p>
-                              <p className="text-xs text-muted-foreground tabular-nums">
-                                {event.yearLabel} · {formatYearsAgo(event.year, currentYear)}
-                              </p>
-                              <p className="text-xs text-muted-foreground text-pretty">{event.description}</p>
+                    <div className="space-y-0">
+                      {(() => {
+                        const stops = timelineStops.map(s => ({
+                          type: 'stop' as const,
+                          key: s.key,
+                          year: s.year,
+                          yearLabel: s.yearLabel,
+                          name: s.name,
+                          subtitle: s.location,
+                          distance: s.distance,
+                          color: s.color,
+                          isCurrent: s.year === currentStop.period.year,
+                        }))
+                        const events = TIMELINE_EVENTS.map(e => ({
+                          type: 'event' as const,
+                          key: e.id,
+                          year: e.year,
+                          yearLabel: e.yearLabel,
+                          name: e.label,
+                          subtitle: e.description,
+                          distance: formatYearsAgo(e.year, currentYear),
+                          color: undefined as string | undefined,
+                          isCurrent: false,
+                        }))
+                        const merged = [...stops, ...events].sort((a, b) => b.year - a.year)
+                        return merged.map((item, i) => (
+                          <div key={item.key} className="flex gap-3">
+                            <div className="flex flex-col items-center">
+                              {item.type === 'stop' ? (
+                                <div
+                                  className="mt-2.5 size-3 shrink-0 rounded-full border-2 border-background"
+                                  style={{ backgroundColor: item.color }}
+                                />
+                              ) : (
+                                <div className="mt-3 size-2 shrink-0 rounded-full bg-muted-foreground/50" />
+                              )}
+                              {i < merged.length - 1 && (
+                                <div className={cn(
+                                  'w-px flex-1 min-h-2',
+                                  item.type === 'stop' ? 'bg-border' : 'bg-border/50'
+                                )} />
+                              )}
                             </div>
-                          </div>
-                        )
-                      })}
-
-                      {timelineStops.map(stop => {
-                        const position = ((timelineMaxYear - stop.year) / timelineRange) * 100
-                        const isCurrent = stop.year === currentStop.period.year
-                        return (
-                          <div
-                            key={stop.key}
-                            className="absolute left-0 right-0 pl-10 pr-4"
-                            style={{ top: `${position}%` }}
-                          >
-                            <div
-                              className="absolute left-3.5 top-1 size-3 rounded-full border-2 border-background"
-                              style={{ backgroundColor: stop.color }}
-                            />
                             <div className={cn(
-                              'rounded-xl border px-3 py-2',
-                              isCurrent ? 'bg-primary/20 border-primary/40' : 'bg-background/60'
+                              'flex-1 rounded-xl border px-3 py-2 mb-2',
+                              item.type === 'event'
+                                ? 'border-dashed border-border bg-background/40'
+                                : item.isCurrent
+                                  ? 'bg-primary/20 border-primary/40'
+                                  : 'bg-background/60'
                             )}>
-                              <p className="text-sm font-semibold text-balance">{stop.name}</p>
+                              <p className={cn(
+                                'font-semibold text-balance',
+                                item.type === 'event' ? 'text-xs' : 'text-sm'
+                              )}>{item.name}</p>
                               <p className="text-xs text-muted-foreground tabular-nums">
-                                {stop.yearLabel} · {stop.distance}
+                                {item.yearLabel} · {item.distance}
                               </p>
-                              <p className="text-xs text-muted-foreground text-pretty">{stop.location}</p>
+                              <p className="text-xs text-muted-foreground text-pretty">{item.subtitle}</p>
                             </div>
                           </div>
-                        )
-                      })}
+                        ))
+                      })()}
                     </div>
                   </div>
                 )}
