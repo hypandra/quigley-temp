@@ -1,0 +1,6 @@
+{
+  "requiredPrefix": "cb_",
+  "allowedSchemas": ["public"],
+  "blockedSchemas": ["auth", "storage", "realtime", "extensions"],
+  "allowedExtensions": ["pgcrypto", "uuid-ossp", "vector"]
+}

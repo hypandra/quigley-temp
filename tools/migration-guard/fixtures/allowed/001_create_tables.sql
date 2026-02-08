@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS cb_user (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS cb_session (
+  id TEXT PRIMARY KEY,
+  "userId" TEXT NOT NULL REFERENCES cb_user(id) ON DELETE CASCADE,
+  "expiresAt" TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS cb_session_user_id_idx ON cb_session("userId");
+
+CREATE VIEW cb_user_emails AS SELECT id, email FROM cb_user;
