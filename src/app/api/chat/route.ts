@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server'
+import { logChatTurn } from '@/lib/db'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -14,8 +15,10 @@ interface ChatRequest {
     details: string
   }
   era: string
+  eraId: string
   year: string
   location: string
+  sessionId: string | null
 }
 
 function buildSystemPrompt(req: ChatRequest): string {
@@ -38,7 +41,8 @@ VOCABULARY (your audience is 8-13 year olds):
 - When you use a word specific to your time period or culture (like "papyrus" or "loom"), briefly explain it in the same sentence — for example: "I write on papyrus, which is a kind of paper made from river reeds."
 - Don't talk down or be babyish — kids this age are smart. Just be clear.
 - Use concrete, sensory words (what things look, smell, taste, feel like) instead of abstract ones.
-- It's okay to use a few unfamiliar words if you explain them naturally — that's how kids learn new words.`
+- It's okay to use a few unfamiliar words if you explain them naturally — that's how kids learn new words.
+- When you mention a notable person, place, food, tool, custom, or concept specific to your time period, wrap it in [[double brackets]] the FIRST time you use it. Example: "I write on [[papyrus]], which is a kind of paper made from river reeds." Only bracket 3-5 terms per response. Never bracket common English words.`
 }
 
 export async function POST(req: NextRequest) {
@@ -83,14 +87,20 @@ export async function POST(req: NextRequest) {
     }
 
     // Transform the upstream stream into our own ReadableStream
+    // Also parse SSE chunks to capture the full assistant response for logging
     const upstream = response.body
     if (!upstream) {
       return Response.json({ error: 'No response body from OpenRouter' }, { status: 502 })
     }
 
+    const systemPrompt = buildSystemPrompt(body)
+    const lastUserMessage = body.messages.filter(m => m.role === 'user').pop()?.content ?? ''
+    let assistantContent = ''
+
     const stream = new ReadableStream({
       async start(controller) {
         const reader = upstream.getReader()
+        const decoder = new TextDecoder()
         try {
           while (true) {
             const { done, value } = await reader.read()
@@ -98,11 +108,42 @@ export async function POST(req: NextRequest) {
               controller.close()
               break
             }
+            // Pass raw bytes through to client unchanged
             controller.enqueue(value)
+
+            // Parse SSE to accumulate assistant response for logging
+            const text = decoder.decode(value, { stream: true })
+            for (const line of text.split('\n')) {
+              const trimmed = line.replace(/\r$/, '')
+              if (!trimmed.startsWith('data: ')) continue
+              const data = trimmed.slice(6)
+              if (data === '[DONE]') continue
+              try {
+                const parsed = JSON.parse(data)
+                const delta = parsed.choices?.[0]?.delta?.content
+                if (delta) assistantContent += delta
+              } catch {
+                // partial chunk — content still reaches client intact
+              }
+            }
           }
         } catch (err) {
           console.error('Stream read error:', err)
           controller.error(err)
+        } finally {
+          // Fire-and-forget: log the completed turn
+          if (assistantContent) {
+            logChatTurn({
+              sessionId: body.sessionId,
+              eraId: body.eraId,
+              personaName: body.persona.name,
+              yearLabel: body.year,
+              location: body.location,
+              systemPrompt,
+              userMessage: lastUserMessage,
+              assistantResponse: assistantContent,
+            })
+          }
         }
       },
     })

@@ -301,8 +301,9 @@ function Home() {
     scrollToBottom()
   }, [messages, scrollToBottom])
 
+  // Only auto-focus input on desktop — mobile zoom into input hides header/context
   useEffect(() => {
-    if (state === 'chatting') {
+    if (state === 'chatting' && window.innerWidth >= 768) {
       inputRef.current?.focus()
     }
   }, [state])
@@ -1096,7 +1097,7 @@ function Home() {
               onChange={(e) => setInput(e.target.value)}
               placeholder={`Ask ${currentStop.persona.name} a question...`}
               disabled={isStreaming}
-              className="flex-1 rounded-xl border bg-card px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+              className="flex-1 rounded-xl border bg-card px-4 py-3 text-base md:text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
             />
             <button
               type="submit"
