@@ -2,6 +2,8 @@ export interface Persona {
   name: string
   role: string
   age: number
+  gender: 'male' | 'female'
+  origin: string // language/accent hint for TTS voice selection
   details: string
 }
 
@@ -33,8 +35,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#D4A843',
     description: 'The New Kingdom is at its height. Pharaohs build massive temples and trade routes stretch across the known world.',
     personas: [
-      { name: 'Nefertari', role: 'scribe apprentice', age: 13, details: 'Learning hieroglyphics at the Temple of Karnak. One of the few girls allowed to study writing.' },
-      { name: 'Khufu', role: 'fisherman\'s son', age: 11, details: 'Lives along the Nile. Helps his father catch tilapia and perch. Dreams of joining the pharaoh\'s army.' },
+      { name: 'Nefertari', role: 'scribe apprentice', age: 13, gender: 'female', origin: 'en-GB', details: 'Learning hieroglyphics at the Temple of Karnak. One of the few girls allowed to study writing.' },
+      { name: 'Khufu', role: 'fisherman\'s son', age: 11, gender: 'male', origin: 'en-GB', details: 'Lives along the Nile. Helps his father catch tilapia and perch. Dreams of joining the pharaoh\'s army.' },
     ],
     effects: [
       { cause: 'Egyptians invented papyrus for writing', effect: 'We have paper, books, and notebooks today', emoji: '📜' },
@@ -50,8 +52,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#C41E3A',
     description: 'The Silk Road connects China to Rome. Paper has just been invented, and the empire is booming with new ideas.',
     personas: [
-      { name: 'Mei Lin', role: 'silk weaver\'s daughter', age: 12, details: 'Helps her mother weave silk cloth that traders carry all the way to Rome. Fascinated by the merchants\' stories of faraway lands.' },
-      { name: 'Zhang Wei', role: 'papermaker\'s apprentice', age: 14, details: 'Works in one of the first paper workshops. Experiments with different plant fibers to make better paper.' },
+      { name: 'Mei Lin', role: 'silk weaver\'s daughter', age: 12, gender: 'female', origin: 'zh', details: 'Helps her mother weave silk cloth that traders carry all the way to Rome. Fascinated by the merchants\' stories of faraway lands.' },
+      { name: 'Zhang Wei', role: 'papermaker\'s apprentice', age: 14, gender: 'male', origin: 'zh', details: 'Works in one of the first paper workshops. Experiments with different plant fibers to make better paper.' },
     ],
     effects: [
       { cause: 'The Silk Road connected East and West', effect: 'Global trade and cultural exchange exist today', emoji: '🐫' },
@@ -67,8 +69,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#8B6914',
     description: 'Mansa Musa rules the richest empire on Earth. Timbuktu is a center of learning with one of the world\'s great libraries.',
     personas: [
-      { name: 'Aminata', role: 'student at Sankore University', age: 13, details: 'Studies mathematics and astronomy at one of the oldest universities in the world. Her family trades gold and salt.' },
-      { name: 'Kofi', role: 'goldsmith\'s apprentice', age: 12, details: 'Learning to craft gold jewelry and coins. The Mali Empire controls most of the world\'s gold supply.' },
+      { name: 'Aminata', role: 'student at Sankore University', age: 13, gender: 'female', origin: 'en-GB', details: 'Studies mathematics and astronomy at one of the oldest universities in the world. Her family trades gold and salt.' },
+      { name: 'Kofi', role: 'goldsmith\'s apprentice', age: 12, gender: 'male', origin: 'en-GB', details: 'Learning to craft gold jewelry and coins. The Mali Empire controls most of the world\'s gold supply.' },
     ],
     effects: [
       { cause: 'Timbuktu\'s libraries preserved knowledge from many cultures', effect: 'Universities and public libraries exist everywhere today', emoji: '📚' },
@@ -84,8 +86,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#6B4226',
     description: 'Art and science are exploding. Leonardo da Vinci is painting, Gutenberg\'s printing press is spreading ideas faster than ever.',
     personas: [
-      { name: 'Isabella', role: 'painter\'s apprentice', age: 14, details: 'Works in a busy art studio grinding pigments and learning to paint. Has secretly been studying anatomy from Leonardo\'s sketches.' },
-      { name: 'Marco', role: 'printer\'s assistant', age: 11, details: 'Helps operate one of Florence\'s new printing presses. Amazed that a book that took monks a year to copy can now be printed in days.' },
+      { name: 'Isabella', role: 'painter\'s apprentice', age: 14, gender: 'female', origin: 'it', details: 'Works in a busy art studio grinding pigments and learning to paint. Has secretly been studying anatomy from Leonardo\'s sketches.' },
+      { name: 'Marco', role: 'printer\'s assistant', age: 11, gender: 'male', origin: 'it', details: 'Helps operate one of Florence\'s new printing presses. Amazed that a book that took monks a year to copy can now be printed in days.' },
     ],
     effects: [
       { cause: 'The printing press made books affordable for everyone', effect: 'Anyone can publish ideas online instantly today', emoji: '🖨️' },
@@ -101,8 +103,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#4A4A4A',
     description: 'Factories and railways are transforming the world. Steam power is changing everything, but the work is hard and the cities are crowded.',
     personas: [
-      { name: 'Thomas', role: 'railway engineer\'s son', age: 13, details: 'His father helps build the railways connecting cities. Thomas rides the train to school — something his grandparents never imagined.' },
-      { name: 'Ada', role: 'factory worker turned student', age: 14, details: 'Used to work in a textile mill but now attends a new public school. Loves mathematics and dreams of building machines.' },
+      { name: 'Thomas', role: 'railway engineer\'s son', age: 13, gender: 'male', origin: 'en-GB', details: 'His father helps build the railways connecting cities. Thomas rides the train to school — something his grandparents never imagined.' },
+      { name: 'Ada', role: 'factory worker turned student', age: 14, gender: 'female', origin: 'en-GB', details: 'Used to work in a textile mill but now attends a new public school. Loves mathematics and dreams of building machines.' },
     ],
     effects: [
       { cause: 'Steam engines powered factories and trains', effect: 'We have cars, planes, and electric motors everywhere', emoji: '🚂' },
@@ -118,8 +120,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#1B3A5C',
     description: 'Humans just walked on the Moon. Computers fill entire rooms, and the future feels like anything is possible.',
     personas: [
-      { name: 'Diana', role: 'NASA engineer\'s daughter', age: 12, details: 'Her mom is one of the few women working at Mission Control. Diana watches rocket launches from the roof of their house.' },
-      { name: 'James', role: 'kid who watched the Moon landing on TV', age: 10, details: 'His whole neighborhood gathered around one TV to watch Neil Armstrong\'s first step. Now he builds model rockets in his backyard.' },
+      { name: 'Diana', role: 'NASA engineer\'s daughter', age: 12, gender: 'female', origin: 'en-US', details: 'Her mom is one of the few women working at Mission Control. Diana watches rocket launches from the roof of their house.' },
+      { name: 'James', role: 'kid who watched the Moon landing on TV', age: 10, gender: 'male', origin: 'en-US', details: 'His whole neighborhood gathered around one TV to watch Neil Armstrong\'s first step. Now he builds model rockets in his backyard.' },
     ],
     effects: [
       { cause: 'NASA needed tiny computers for spacecraft', effect: 'You carry a supercomputer (your phone) in your pocket', emoji: '📱' },
