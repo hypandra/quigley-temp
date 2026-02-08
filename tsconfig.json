@@ -39,6 +39,7 @@
     "node_modules",
     "recipes",
     "tools",
-    "supabase"
+    "supabase",
+    "scripts"
   ]
 }
