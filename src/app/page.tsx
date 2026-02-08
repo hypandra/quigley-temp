@@ -1,12 +1,15 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback, Suspense } from 'react'
+import dynamic from 'next/dynamic'
 import { useSearchParams } from 'next/navigation'
 import { TimePeriod, Persona, TIME_PERIODS, getRandomPeriod, getRandomPersona } from '@/lib/time-periods'
 
 
 import { TIMELINE_EVENTS } from '@/lib/timeline-events'
 import { cn } from '@/lib/utils'
+
+const GlobePanel = dynamic(() => import('@/components/globe-panel'), { ssr: false })
 
 interface Message {
   role: 'user' | 'assistant'
@@ -148,7 +151,7 @@ interface Connection {
   thread: string
 }
 
-type AppState = 'home' | 'arriving' | 'chatting' | 'effects' | 'timeline'
+type AppState = 'home' | 'arriving' | 'chatting' | 'effects' | 'timeline' | 'globe'
 
 function formatYearsAgo(year: number, currentYear: number) {
   const diff = Math.max(0, currentYear - year)
@@ -189,6 +192,7 @@ function Home() {
   const [isStreaming, setIsStreaming] = useState(false)
   const [showEffects, setShowEffects] = useState(false)
   const [showTimeline, setShowTimeline] = useState(false)
+  const [showGlobe, setShowGlobe] = useState(false)
   const [selectedEntity, setSelectedEntity] = useState<LookupEntity | null>(null)
   const [showMarks, setShowMarks] = useState(true)
   const [searchInput, setSearchInput] = useState('')
@@ -331,6 +335,7 @@ function Home() {
     setMessages([])
     setShowEffects(false)
     setShowTimeline(false)
+    setShowGlobe(false)
     setSelectedEntity(null)
     setArrivalStep(0)
     setConnections([])
@@ -450,13 +455,22 @@ function Home() {
   function viewEffects() {
     setShowEffects(true)
     setShowTimeline(false)
+    setShowGlobe(false)
     setState('effects')
   }
 
   function viewTimeline() {
     setShowTimeline(true)
     setShowEffects(false)
+    setShowGlobe(false)
     setState('timeline')
+  }
+
+  function viewGlobe() {
+    setShowGlobe(true)
+    setShowEffects(false)
+    setShowTimeline(false)
+    setState('globe')
   }
 
   const currentYear = new Date().getFullYear()
@@ -607,7 +621,7 @@ function Home() {
   }
 
   // CHAT + EFFECTS SCREEN
-  if ((state === 'chatting' || state === 'effects' || state === 'timeline') && currentStop) {
+  if ((state === 'chatting' || state === 'effects' || state === 'timeline' || state === 'globe') && currentStop) {
     return (
       <div className="flex flex-col h-dvh">
         {/* Header */}
@@ -635,6 +649,14 @@ function Home() {
                 >
                   Timeline
                 </button>
+                {journey.length > 0 && (
+                  <button
+                    onClick={viewGlobe}
+                    className="text-xs px-3 py-1.5 rounded-lg border border-border bg-card text-foreground hover:bg-secondary/60 transition-colors"
+                  >
+                    Globe
+                  </button>
+                )}
                 <button
                   onClick={jump}
                   className="text-xs px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
@@ -760,6 +782,16 @@ function Home() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Globe panel (overlay) */}
+        {showGlobe && (
+          <GlobePanel
+            journey={journey}
+            currentStop={currentStop}
+            onClose={() => { setShowGlobe(false); setState('chatting') }}
+            onJump={jump}
+          />
         )}
 
         {/* Timeline panel (overlay) */}

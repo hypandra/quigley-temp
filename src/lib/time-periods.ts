@@ -20,6 +20,7 @@ export interface TimePeriod {
   year: number
   yearLabel: string
   location: string
+  coordinates: [number, number] // [lng, lat]
   color: string
   description: string
   personas: Persona[]
@@ -33,6 +34,7 @@ export const TIME_PERIODS: TimePeriod[] = [
     year: -1500,
     yearLabel: '1500 BCE',
     location: 'Thebes, Egypt',
+    coordinates: [32.61, 25.70],
     color: '#D4A843',
     description: 'The New Kingdom is at its height. Pharaohs build massive temples and trade routes stretch across the known world.',
     personas: [
@@ -50,6 +52,7 @@ export const TIME_PERIODS: TimePeriod[] = [
     year: 100,
     yearLabel: '100 CE',
     location: 'Chang\'an (Xi\'an), China',
+    coordinates: [108.94, 34.26],
     color: '#C41E3A',
     description: 'The Silk Road connects China to Rome. Paper has just been invented, and the empire is booming with new ideas.',
     personas: [
@@ -67,6 +70,7 @@ export const TIME_PERIODS: TimePeriod[] = [
     year: 1325,
     yearLabel: '1325 CE',
     location: 'Timbuktu, Mali Empire',
+    coordinates: [-3.01, 16.77],
     color: '#8B6914',
     description: 'Mansa Musa rules the richest empire on Earth. Timbuktu is a center of learning with one of the world\'s great libraries.',
     personas: [
@@ -84,6 +88,7 @@ export const TIME_PERIODS: TimePeriod[] = [
     year: 1505,
     yearLabel: '1505 CE',
     location: 'Florence, Italy',
+    coordinates: [11.25, 43.77],
     color: '#6B4226',
     description: 'Art and science are exploding. Leonardo da Vinci is painting, Gutenberg\'s printing press is spreading ideas faster than ever.',
     personas: [
@@ -101,6 +106,7 @@ export const TIME_PERIODS: TimePeriod[] = [
     year: 1845,
     yearLabel: '1845 CE',
     location: 'Manchester, England',
+    coordinates: [-2.24, 53.48],
     color: '#4A4A4A',
     description: 'Factories and railways are transforming the world. Steam power is changing everything, but the work is hard and the cities are crowded.',
     personas: [
@@ -118,6 +124,7 @@ export const TIME_PERIODS: TimePeriod[] = [
     year: 1969,
     yearLabel: '1969 CE',
     location: 'Houston, Texas, USA',
+    coordinates: [-95.37, 29.76],
     color: '#1B3A5C',
     description: 'Humans just walked on the Moon. Computers fill entire rooms, and the future feels like anything is possible.',
     personas: [
