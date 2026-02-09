@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rippled Echoes — Header Layout Explorer</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: hsl(220 20% 6%);
+    --fg: hsl(220 10% 92%);
+    --card: hsl(220 18% 10%);
+    --secondary: hsl(220 15% 18%);
+    --secondary-fg: hsl(220 10% 85%);
+    --muted: hsl(220 10% 55%);
+    --border: hsl(220 15% 20%);
+    --primary: hsl(45 90% 55%);
+    --primary-fg: hsl(220 20% 6%);
+    --radius: 0.75rem;
+    --era-color: #D4A843;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #111;
+    color: #ddd;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: 1fr auto;
+  }
+
+  /* ─── Controls Panel ─── */
+  .controls {
+    background: #1a1a1a;
+    border-right: 1px solid #333;
+    padding: 20px;
+    overflow-y: auto;
+    grid-row: 1 / -1;
+  }
+  .controls h1 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 20px;
+  }
+  .control-group {
+    margin-bottom: 24px;
+  }
+  .control-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #777;
+    margin-bottom: 8px;
+  }
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-size: 13px;
+  }
+  .radio-option:hover { background: #252525; }
+  .radio-option.active { background: #2a2520; color: var(--primary); }
+  .radio-option input { display: none; }
+  .radio-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid #555;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .radio-option.active .radio-dot {
+    border-color: var(--primary);
+    background: var(--primary);
+    box-shadow: inset 0 0 0 3px #1a1a1a;
+  }
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+  }
+  .toggle-row span { font-size: 13px; }
+  .toggle {
+    width: 40px; height: 22px;
+    background: #333;
+    border-radius: 11px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle.on { background: var(--primary); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    background: white;
+    border-radius: 50%;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(18px); }
+
+  .presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .preset-btn {
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background: transparent;
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .preset-btn:hover { border-color: #555; color: #ddd; }
+  .preset-btn.active { border-color: var(--primary); color: var(--primary); background: #2a2520; }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .slider-row input[type=range] {
+    flex: 1;
+    accent-color: var(--primary);
+  }
+  .slider-val {
+    font-size: 12px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: #999;
+    min-width: 40px;
+    text-align: right;
+  }
+
+  /* ─── Preview Area ─── */
+  .preview-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 40px 20px;
+    gap: 20px;
+    overflow-y: auto;
+  }
+  .preview-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #555;
+  }
+  .phone-frame {
+    width: 375px;
+    min-height: 200px;
+    background: var(--bg);
+    border-radius: 20px;
+    border: 2px solid #333;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .phone-frame.wide { width: 768px; }
+
+  /* ─── Prompt Area ─── */
+  .prompt-area {
+    border-top: 1px solid #333;
+    padding: 16px 20px;
+    background: #151515;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .prompt-text {
+    flex: 1;
+    font-size: 13px;
+    line-height: 1.6;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: #bbb;
+    white-space: pre-wrap;
+  }
+  .copy-btn {
+    flex-shrink: 0;
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: transparent;
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .copy-btn.copied { border-color: #4ade80; color: #4ade80; }
+
+  /* ─── Header Component Styles ─── */
+  .hdr { border-bottom: 1px solid var(--border); background: var(--bg); }
+  .hdr-inner { padding: 10px 14px; }
+  .hdr-row { display: flex; align-items: center; gap: 8px; }
+  .hdr-between { justify-content: space-between; }
+
+  .btn-home {
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--secondary);
+    color: var(--secondary-fg);
+    border: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .btn-home.icon-only {
+    width: 36px; height: 36px;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .persona-avatar {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .persona-info { min-width: 0; flex: 1; }
+  .persona-name { font-size: 13px; font-weight: 600; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .persona-meta { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .action-btn {
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .action-btn.ripples { background: var(--secondary); color: var(--secondary-fg); }
+  .action-btn.timeline { background: transparent; border: 1px solid var(--border); color: var(--fg); }
+  .action-btn.jump { background: var(--primary); color: var(--primary-fg); font-weight: 600; }
+
+  .actions-row {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  /* Layout: bottom-bar */
+  .bottom-bar {
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-around;
+  }
+  .bottom-bar .action-btn { flex: 1; text-align: center; border-radius: 10px; padding: 8px 4px; }
+
+  /* Divider */
+  .hdr-divider { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
+
+  /* Chat placeholder */
+  .chat-placeholder {
+    padding: 30px 16px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Controls -->
+<div class="controls">
+  <h1>Header Layout</h1>
+
+  <div class="control-group">
+    <label>Presets</label>
+    <div class="presets" id="presets"></div>
+  </div>
+
+  <div class="control-group">
+    <label>Layout</label>
+    <div class="radio-group" id="layoutGroup"></div>
+  </div>
+
+  <div class="control-group">
+    <label>Home Button Style</label>
+    <div class="radio-group" id="homeGroup"></div>
+  </div>
+
+  <div class="control-group">
+    <label>Mobile Action Labels</label>
+    <div class="radio-group" id="actionLabelGroup"></div>
+  </div>
+
+  <div class="control-group">
+    <label>Options</label>
+    <div class="toggle-row">
+      <span>Show avatar on mobile</span>
+      <div class="toggle" id="toggleAvatar" onclick="toggle('showAvatar')"></div>
+    </div>
+    <div class="toggle-row">
+      <span>Show role in meta</span>
+      <div class="toggle on" id="toggleRole" onclick="toggle('showRole')"></div>
+    </div>
+    <div class="toggle-row">
+      <span>Divider between sections</span>
+      <div class="toggle" id="toggleDivider" onclick="toggle('showDivider')"></div>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label>Persona Name</label>
+    <div class="radio-group" id="personaGroup"></div>
+  </div>
+
+  <div class="control-group">
+    <label>Horizontal Padding</label>
+    <div class="slider-row">
+      <input type="range" min="8" max="20" value="14" oninput="state.hPad=+this.value;updateAll()">
+      <span class="slider-val" id="hPadVal">14px</span>
+    </div>
+  </div>
+</div>
+
+<!-- Preview -->
+<div class="preview-area">
+  <div class="preview-label">Mobile — 375px</div>
+  <div class="phone-frame" id="mobilePreview"></div>
+  <div class="preview-label">Tablet — 768px</div>
+  <div class="phone-frame wide" id="tabletPreview"></div>
+</div>
+
+<!-- Prompt -->
+<div class="prompt-area">
+  <div class="prompt-text" id="promptText"></div>
+  <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">Copy</button>
+</div>
+
+<script>
+const DEFAULTS = {
+  layout: 'two-row',
+  homeStyle: 'text',
+  actionLabels: 'icons',
+  showAvatar: false,
+  showRole: true,
+  showDivider: false,
+  persona: 'nefertari',
+  hPad: 14,
+};
+
+const state = { ...DEFAULTS };
+
+const PERSONAS = {
+  nefertari: { name: 'Nefertari', initial: 'N', role: 'scribe apprentice', year: '1500 BCE', color: '#D4A843', era: 'Ancient Egypt' },
+  diana: { name: 'Diana', initial: 'D', role: "NASA engineer's daughter", year: '1969 CE', color: '#1B3A5C', era: 'Space Age' },
+  aminata: { name: 'Aminata', initial: 'A', role: 'student at Sankore University', year: '1325 CE', color: '#8B6914', era: 'Medieval West Africa' },
+};
+
+const LAYOUTS = [
+  { id: 'single-row', label: 'Single row — everything inline' },
+  { id: 'two-row', label: 'Two rows — persona top, actions bottom' },
+  { id: 'two-row-flip', label: 'Two rows — actions top, persona bottom' },
+  { id: 'bottom-bar', label: 'Bottom action bar — chat nav at bottom' },
+  { id: 'minimal', label: 'Minimal — home + era color bar + actions' },
+];
+
+const HOME_STYLES = [
+  { id: 'text', label: '"Here & Now" text' },
+  { id: 'icon', label: '🏠 icon only' },
+  { id: 'arrow', label: '← back arrow' },
+  { id: 'tilde', label: '~ (home)' },
+];
+
+const ACTION_LABELS = [
+  { id: 'icons', label: 'Icons only (~ ⏱ ⚡)' },
+  { id: 'short', label: 'Short text (Rpl · Tml · Jump)' },
+  { id: 'full', label: 'Full text (Ripples · Timeline · Jump ⚡)' },
+];
+
+const PERSONA_OPTIONS = [
+  { id: 'nefertari', label: 'Nefertari (medium name)' },
+  { id: 'diana', label: 'Diana (short name)' },
+  { id: 'aminata', label: 'Aminata (long role)' },
+];
+
+const PRESETS = [
+  { name: 'Cockpit', settings: { layout: 'two-row', homeStyle: 'tilde', actionLabels: 'icons', showAvatar: false, showRole: true, showDivider: false } },
+  { name: 'Classic', settings: { layout: 'single-row', homeStyle: 'text', actionLabels: 'full', showAvatar: true, showRole: true, showDivider: false } },
+  { name: 'Minimal', settings: { layout: 'minimal', homeStyle: 'arrow', actionLabels: 'icons', showAvatar: false, showRole: false, showDivider: false } },
+  { name: 'App-like', settings: { layout: 'bottom-bar', homeStyle: 'icon', actionLabels: 'short', showAvatar: true, showRole: true, showDivider: false } },
+  { name: 'Split', settings: { layout: 'two-row', homeStyle: 'text', actionLabels: 'short', showAvatar: true, showRole: true, showDivider: true } },
+];
+
+// ─── Build controls ───
+function buildRadioGroup(containerId, options, stateKey) {
+  const container = document.getElementById(containerId);
+  options.forEach(opt => {
+    const div = document.createElement('div');
+    div.className = 'radio-option' + (state[stateKey] === opt.id ? ' active' : '');
+    div.innerHTML = `<div class="radio-dot"></div><span>${opt.label}</span>`;
+    div.onclick = () => { state[stateKey] = opt.id; updateAll(); buildRadioGroup(containerId, options, stateKey); };
+    container.appendChild(div);
+  });
+  // Clear first
+  container.innerHTML = '';
+  options.forEach(opt => {
+    const div = document.createElement('div');
+    div.className = 'radio-option' + (state[stateKey] === opt.id ? ' active' : '');
+    div.innerHTML = `<div class="radio-dot"></div><span>${opt.label}</span>`;
+    div.onclick = () => { state[stateKey] = opt.id; updateAll(); buildRadioGroup(containerId, options, stateKey); };
+    container.appendChild(div);
+  });
+}
+
+function buildPresets() {
+  const container = document.getElementById('presets');
+  container.innerHTML = '';
+  PRESETS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.textContent = p.name;
+    btn.onclick = () => {
+      Object.assign(state, p.settings);
+      updateAll();
+      rebuildControls();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function rebuildControls() {
+  buildRadioGroup('layoutGroup', LAYOUTS, 'layout');
+  buildRadioGroup('homeGroup', HOME_STYLES, 'homeStyle');
+  buildRadioGroup('actionLabelGroup', ACTION_LABELS, 'actionLabels');
+  buildRadioGroup('personaGroup', PERSONA_OPTIONS, 'persona');
+  document.getElementById('toggleAvatar').className = 'toggle' + (state.showAvatar ? ' on' : '');
+  document.getElementById('toggleRole').className = 'toggle' + (state.showRole ? ' on' : '');
+  document.getElementById('toggleDivider').className = 'toggle' + (state.showDivider ? ' on' : '');
+  document.getElementById('hPadVal').textContent = state.hPad + 'px';
+}
+
+function toggle(key) {
+  state[key] = !state[key];
+  updateAll();
+  rebuildControls();
+}
+
+// ─── Render ───
+function homeButton() {
+  switch (state.homeStyle) {
+    case 'text': return `<button class="btn-home">Here &amp; Now</button>`;
+    case 'icon': return `<button class="btn-home icon-only">🏠</button>`;
+    case 'arrow': return `<button class="btn-home icon-only">←</button>`;
+    case 'tilde': return `<button class="btn-home icon-only">~</button>`;
+  }
+}
+
+function actionButtons() {
+  let rLabel, tLabel, jLabel;
+  switch (state.actionLabels) {
+    case 'icons':
+      rLabel = '~'; tLabel = '⏱'; jLabel = '⚡'; break;
+    case 'short':
+      rLabel = 'Rpl'; tLabel = 'Tml'; jLabel = 'Jump'; break;
+    case 'full':
+      rLabel = 'Ripples'; tLabel = 'Timeline'; jLabel = 'Jump ⚡'; break;
+  }
+  return `
+    <button class="action-btn ripples">${rLabel}</button>
+    <button class="action-btn timeline">${tLabel}</button>
+    <button class="action-btn jump">${jLabel}</button>
+  `;
+}
+
+function personaBlock(forceAvatar) {
+  const p = PERSONAS[state.persona];
+  const showAv = forceAvatar || state.showAvatar;
+  const meta = state.showRole ? `${p.role} · ${p.year}` : p.year;
+  return `
+    ${showAv ? `<div class="persona-avatar" style="background:${p.color}22;color:${p.color}">${p.initial}</div>` : ''}
+    <div class="persona-info">
+      <div class="persona-name">${p.name}</div>
+      <div class="persona-meta">${meta}</div>
+    </div>
+  `;
+}
+
+function divider() {
+  return state.showDivider ? '<div class="hdr-divider"></div>' : '';
+}
+
+function renderHeader(wide) {
+  const p = PERSONAS[state.persona];
+  const pad = state.hPad;
+  const showAvatarHere = wide ? true : state.showAvatar;
+
+  switch (state.layout) {
+    case 'single-row':
+      return `
+        <div class="hdr">
+          <div class="hdr-inner" style="padding-left:${pad}px;padding-right:${pad}px">
+            <div class="hdr-row hdr-between">
+              <div class="hdr-row" style="gap:8px;min-width:0;flex:1">
+                ${homeButton()}
+                ${divider()}
+                ${personaBlock(wide)}
+              </div>
+              <div class="actions-row">${actionButtons()}</div>
+            </div>
+          </div>
+        </div>`;
+
+    case 'two-row':
+      return `
+        <div class="hdr">
+          <div class="hdr-inner" style="padding-left:${pad}px;padding-right:${pad}px">
+            <div class="hdr-row hdr-between" style="margin-bottom:8px">
+              <div class="hdr-row" style="gap:8px;min-width:0;flex:1">
+                ${homeButton()}
+                ${divider()}
+                ${personaBlock(wide)}
+              </div>
+            </div>
+            <div class="hdr-row hdr-between">
+              <div style="font-size:10px;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase">${p.era}</div>
+              <div class="actions-row">${actionButtons()}</div>
+            </div>
+          </div>
+        </div>`;
+
+    case 'two-row-flip':
+      return `
+        <div class="hdr">
+          <div class="hdr-inner" style="padding-left:${pad}px;padding-right:${pad}px">
+            <div class="hdr-row hdr-between" style="margin-bottom:8px">
+              ${homeButton()}
+              <div class="actions-row">${actionButtons()}</div>
+            </div>
+            <div class="hdr-row" style="gap:8px">
+              <div class="persona-avatar" style="background:${p.color}22;color:${p.color};width:28px;height:28px;font-size:12px;border-radius:8px">${p.initial}</div>
+              <div class="persona-info">
+                <div class="persona-name" style="font-size:12px">${p.name} <span style="color:var(--muted);font-weight:400">· ${state.showRole ? p.role + ' · ' : ''}${p.year}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+    case 'bottom-bar':
+      return `
+        <div class="hdr">
+          <div class="hdr-inner" style="padding-left:${pad}px;padding-right:${pad}px">
+            <div class="hdr-row hdr-between">
+              <div class="hdr-row" style="gap:8px;min-width:0;flex:1">
+                ${homeButton()}
+                ${divider()}
+                ${personaBlock(wide)}
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+    case 'minimal':
+      return `
+        <div class="hdr">
+          <div style="height:3px;background:${p.color}"></div>
+          <div class="hdr-inner" style="padding-left:${pad}px;padding-right:${pad}px">
+            <div class="hdr-row hdr-between">
+              ${homeButton()}
+              <div style="text-align:center;flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:600;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name} · ${p.year}</div>
+              </div>
+              <div class="actions-row">${actionButtons()}</div>
+            </div>
+          </div>
+        </div>`;
+  }
+}
+
+function renderBottomBar() {
+  if (state.layout !== 'bottom-bar') return '';
+  return `<div class="bottom-bar">${actionButtons()}</div>`;
+}
+
+function renderPhone(containerId, wide) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = `
+    ${renderHeader(wide)}
+    <div class="chat-placeholder">
+      Chat messages would appear here...<br>
+      <span style="opacity:0.5">Ask ${PERSONAS[state.persona].name} a question</span>
+    </div>
+    ${renderBottomBar()}
+  `;
+}
+
+function updateAll() {
+  renderPhone('mobilePreview', false);
+  renderPhone('tabletPreview', true);
+  updatePrompt();
+  document.getElementById('hPadVal').textContent = state.hPad + 'px';
+}
+
+function updatePrompt() {
+  const parts = [];
+  const p = PERSONAS[state.persona];
+
+  // Layout
+  const layoutDesc = {
+    'single-row': 'a single-row layout with all elements inline',
+    'two-row': 'a two-row layout: persona info on top, era label and action buttons on the bottom row',
+    'two-row-flip': 'a two-row layout: home button and actions on top, compact persona info below',
+    'bottom-bar': 'a top header with persona info and a separate bottom action bar for navigation',
+    'minimal': 'a minimal header with a colored era accent bar, centered persona/year, and compact actions',
+  };
+  parts.push(`Use ${layoutDesc[state.layout]}.`);
+
+  // Home button
+  const homeDesc = {
+    'text': 'The home button says "Here & Now".',
+    'icon': 'The home button is a 🏠 icon.',
+    'arrow': 'The home button is a ← back arrow.',
+    'tilde': 'The home button is a ~ character (tilde).',
+  };
+  if (state.homeStyle !== DEFAULTS.homeStyle) parts.push(homeDesc[state.homeStyle]);
+
+  // Action labels
+  if (state.actionLabels === 'icons') parts.push('On mobile, action buttons use icon-only labels: ~ for Ripples, ⏱ for Timeline, ⚡ for Jump.');
+  else if (state.actionLabels === 'short') parts.push('Action buttons use abbreviated labels: "Rpl", "Tml", "Jump".');
+  else parts.push('Action buttons show full text labels: "Ripples", "Timeline", "Jump ⚡".');
+
+  // Avatar
+  if (!state.showAvatar) parts.push('Hide the persona avatar on mobile (show it on sm: breakpoint and up).');
+  else parts.push('Show the persona avatar at all screen sizes.');
+
+  // Role
+  if (!state.showRole) parts.push('Show only the year in persona meta, not the role.');
+
+  // Divider
+  if (state.showDivider) parts.push('Add a thin vertical divider between the home button and persona info.');
+
+  // Padding
+  if (state.hPad !== DEFAULTS.hPad) parts.push(`Use ${state.hPad}px horizontal padding in the header.`);
+
+  document.getElementById('promptText').textContent = parts.join('\n');
+}
+
+function copyPrompt() {
+  const text = document.getElementById('promptText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+// Init
+buildPresets();
+rebuildControls();
+updateAll();
+</script>
+</body>
+</html>

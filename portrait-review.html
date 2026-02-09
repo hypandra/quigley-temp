@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rippled Echoes — Portrait Review</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --card: #1a1a1a;
+    --border: #2a2a2a;
+    --text: #e8e8e8;
+    --muted: #888;
+    --accent: #6366f1;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+  }
+  .stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .stat {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .stat strong {
+    color: var(--text);
+    font-size: 1.1rem;
+    margin-right: 0.25rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .card[data-status="approve"] { border-color: var(--green); }
+  .card[data-status="redo"] { border-color: var(--red); }
+  .card[data-status="tweak"] { border-color: var(--amber); }
+  .card-img-wrap {
+    position: relative;
+    aspect-ratio: 1;
+    background: #111;
+    cursor: pointer;
+  }
+  .card-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .card-img-wrap .missing {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+  .badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .badge[data-v="approve"] { background: var(--green); color: #000; }
+  .badge[data-v="redo"] { background: var(--red); color: #fff; }
+  .badge[data-v="tweak"] { background: var(--amber); color: #000; }
+  .card-body {
+    padding: 1rem 1.25rem;
+  }
+  .card-body h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.15rem;
+  }
+  .card-body .meta {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+  .card-body .era-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.35rem;
+    vertical-align: middle;
+  }
+  .card-body .details {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+  }
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .actions button {
+    flex: 1;
+    padding: 0.4rem 0;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: transparent;
+    color: var(--text);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .actions button:hover { background: #222; }
+  .actions button.active-approve { background: var(--green); color: #000; border-color: var(--green); }
+  .actions button.active-tweak { background: var(--amber); color: #000; border-color: var(--amber); }
+  .actions button.active-redo { background: var(--red); color: #fff; border-color: var(--red); }
+  .note-area {
+    width: 100%;
+    background: #111;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    color: var(--text);
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+    resize: vertical;
+    min-height: 2.5rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .note-area:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .note-area::placeholder { color: #555; }
+  .export-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
+  .export-bar .summary { font-size: 0.85rem; color: var(--muted); }
+  .export-bar .summary strong { color: var(--text); }
+  .export-btn {
+    padding: 0.5rem 1.25rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .export-btn:hover { opacity: 0.9; }
+  .export-btn:active { opacity: 0.8; }
+  .spacer { height: 5rem; }
+
+  /* Lightbox */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+  .lightbox img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 1rem;
+  }
+  .lightbox-caption {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+  .toast {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: var(--green);
+    color: #000;
+    padding: 0.6rem 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 200;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<h1>Portrait Review</h1>
+<p class="subtitle">Rippled Echoes &mdash; 12 personas across 6 eras. Click image to zoom. Mark each as approve / tweak / redo, add notes, then export.</p>
+
+<div class="stats" id="stats"></div>
+<div class="grid" id="grid"></div>
+<div class="spacer"></div>
+
+<div class="export-bar">
+  <div class="summary" id="summary">0 of 12 reviewed</div>
+  <div style="display:flex;gap:0.5rem">
+    <button class="export-btn" style="background:#333" onclick="copyJSON()">Copy JSON</button>
+    <button class="export-btn" onclick="copyMarkdown()">Copy Markdown</button>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" style="display:none" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt="">
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+</div>
+
+<div class="toast" id="toast">Copied!</div>
+
+<script>
+const PERSONAS = [
+  { id: 'ancient-egypt-nefertari', name: 'Nefertari', role: 'scribe apprentice', age: 13, gender: 'female', era: 'Ancient Egypt', year: '1500 BCE', location: 'Thebes, Egypt', color: '#D4A843', details: 'Learning hieroglyphics at the Temple of Karnak. One of the few girls allowed to study writing.' },
+  { id: 'ancient-egypt-khufu', name: 'Khufu', role: "fisherman's son", age: 11, gender: 'male', era: 'Ancient Egypt', year: '1500 BCE', location: 'Thebes, Egypt', color: '#D4A843', details: "Lives along the Nile. Helps his father catch tilapia and perch. Dreams of joining the pharaoh's army." },
+  { id: 'han-dynasty-mei-lin', name: 'Mei Lin', role: "silk weaver's daughter", age: 12, gender: 'female', era: 'Han Dynasty China', year: '100 CE', location: "Chang'an, China", color: '#C41E3A', details: "Helps her mother weave silk cloth that traders carry all the way to Rome." },
+  { id: 'han-dynasty-zhang-wei', name: 'Zhang Wei', role: "papermaker's apprentice", age: 14, gender: 'male', era: 'Han Dynasty China', year: '100 CE', location: "Chang'an, China", color: '#C41E3A', details: 'Works in one of the first paper workshops. Experiments with different plant fibers.' },
+  { id: 'medieval-west-africa-aminata', name: 'Aminata', role: 'student at Sankore University', age: 13, gender: 'female', era: 'Medieval West Africa', year: '1325 CE', location: 'Timbuktu, Mali', color: '#8B6914', details: 'Studies mathematics and astronomy. Her family trades gold and salt.' },
+  { id: 'medieval-west-africa-kofi', name: 'Kofi', role: "goldsmith's apprentice", age: 12, gender: 'male', era: 'Medieval West Africa', year: '1325 CE', location: 'Timbuktu, Mali', color: '#8B6914', details: "Learning to craft gold jewelry and coins." },
+  { id: 'renaissance-italy-isabella', name: 'Isabella', role: "painter's apprentice", age: 14, gender: 'female', era: 'Renaissance Italy', year: '1505 CE', location: 'Florence, Italy', color: '#6B4226', details: "Works in a busy art studio grinding pigments and learning to paint." },
+  { id: 'renaissance-italy-marco', name: 'Marco', role: "printer's assistant", age: 11, gender: 'male', era: 'Renaissance Italy', year: '1505 CE', location: 'Florence, Italy', color: '#6B4226', details: "Helps operate one of Florence's new printing presses." },
+  { id: 'industrial-england-thomas', name: 'Thomas', role: "railway engineer's son", age: 13, gender: 'male', era: 'Industrial Revolution', year: '1845 CE', location: 'Manchester, England', color: '#4A4A4A', details: 'His father helps build the railways connecting cities. Rides the train to school.' },
+  { id: 'industrial-england-ada', name: 'Ada', role: 'factory worker turned student', age: 14, gender: 'female', era: 'Industrial Revolution', year: '1845 CE', location: 'Manchester, England', color: '#4A4A4A', details: 'Used to work in a textile mill but now attends a new public school.' },
+  { id: 'space-age-diana', name: 'Diana', role: "NASA engineer's daughter", age: 12, gender: 'female', era: 'Space Age', year: '1969 CE', location: 'Houston, Texas', color: '#1B3A5C', details: "Her mom is one of the few women working at Mission Control." },
+  { id: 'space-age-james', name: 'James', role: 'kid who watched the Moon landing on TV', age: 10, gender: 'male', era: 'Space Age', year: '1969 CE', location: 'Houston, Texas', color: '#1B3A5C', details: "His whole neighborhood gathered around one TV to watch Neil Armstrong's first step." },
+];
+
+// State
+const state = {};
+PERSONAS.forEach(p => {
+  state[p.id] = { status: null, note: '' };
+});
+
+// Try load saved state
+try {
+  const saved = JSON.parse(localStorage.getItem('portrait-review') || '{}');
+  Object.keys(saved).forEach(k => { if (state[k]) Object.assign(state[k], saved[k]); });
+} catch {}
+
+function save() {
+  localStorage.setItem('portrait-review', JSON.stringify(state));
+  updateSummary();
+}
+
+function updateSummary() {
+  const reviewed = Object.values(state).filter(s => s.status).length;
+  const approved = Object.values(state).filter(s => s.status === 'approve').length;
+  const tweaks = Object.values(state).filter(s => s.status === 'tweak').length;
+  const redos = Object.values(state).filter(s => s.status === 'redo').length;
+  document.getElementById('summary').innerHTML =
+    `<strong>${reviewed}</strong> of ${PERSONAS.length} reviewed` +
+    (approved ? ` &middot; <span style="color:var(--green)">${approved} approved</span>` : '') +
+    (tweaks ? ` &middot; <span style="color:var(--amber)">${tweaks} tweak</span>` : '') +
+    (redos ? ` &middot; <span style="color:var(--red)">${redos} redo</span>` : '');
+
+  document.getElementById('stats').innerHTML =
+    `<div class="stat"><strong>${approved}</strong> approved</div>` +
+    `<div class="stat"><strong>${tweaks}</strong> need tweaks</div>` +
+    `<div class="stat"><strong>${redos}</strong> need redo</div>` +
+    `<div class="stat"><strong>${PERSONAS.length - reviewed}</strong> unreviewed</div>`;
+}
+
+function setStatus(id, status) {
+  state[id].status = state[id].status === status ? null : status;
+  save();
+  renderCard(id);
+}
+
+function setNote(id, note) {
+  state[id].note = note;
+  save();
+}
+
+function openLightbox(id, name) {
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lightbox-img').src = `public/portraits/${id}.png`;
+  document.getElementById('lightbox-caption').textContent = name;
+  lb.style.display = 'flex';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').style.display = 'none';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+function renderCard(id) {
+  const card = document.querySelector(`[data-id="${id}"]`);
+  if (!card) return;
+  const s = state[id];
+  card.setAttribute('data-status', s.status || '');
+
+  const badge = card.querySelector('.badge');
+  if (s.status) {
+    badge.style.display = '';
+    badge.setAttribute('data-v', s.status);
+    badge.textContent = s.status === 'approve' ? 'Approved' : s.status === 'tweak' ? 'Tweak' : 'Redo';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  card.querySelectorAll('.actions button').forEach(btn => {
+    const v = btn.dataset.action;
+    btn.className = s.status === v ? `active-${v}` : '';
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1500);
+}
+
+function copyJSON() {
+  const out = {};
+  PERSONAS.forEach(p => {
+    const s = state[p.id];
+    if (s.status || s.note) {
+      out[p.id] = { name: p.name, era: p.era, status: s.status || 'unreviewed', note: s.note || '' };
+    }
+  });
+  navigator.clipboard.writeText(JSON.stringify(out, null, 2));
+  showToast('JSON copied!');
+}
+
+function copyMarkdown() {
+  let md = '## Portrait Review Feedback\n\n';
+
+  const groups = { approve: [], tweak: [], redo: [], unreviewed: [] };
+  PERSONAS.forEach(p => {
+    const s = state[p.id];
+    const bucket = s.status || 'unreviewed';
+    groups[bucket].push({ ...p, ...s });
+  });
+
+  if (groups.approve.length) {
+    md += `### Approved (${groups.approve.length})\n`;
+    groups.approve.forEach(p => {
+      md += `- **${p.name}** (${p.era})`;
+      if (p.note) md += ` — ${p.note}`;
+      md += '\n';
+    });
+    md += '\n';
+  }
+  if (groups.tweak.length) {
+    md += `### Need Tweaks (${groups.tweak.length})\n`;
+    groups.tweak.forEach(p => {
+      md += `- **${p.name}** (${p.era})`;
+      if (p.note) md += ` — ${p.note}`;
+      md += '\n';
+    });
+    md += '\n';
+  }
+  if (groups.redo.length) {
+    md += `### Redo (${groups.redo.length})\n`;
+    groups.redo.forEach(p => {
+      md += `- **${p.name}** (${p.era})`;
+      if (p.note) md += ` — ${p.note}`;
+      md += '\n';
+    });
+    md += '\n';
+  }
+  if (groups.unreviewed.length) {
+    md += `### Unreviewed (${groups.unreviewed.length})\n`;
+    groups.unreviewed.forEach(p => { md += `- ${p.name} (${p.era})\n`; });
+    md += '\n';
+  }
+
+  navigator.clipboard.writeText(md);
+  showToast('Markdown copied!');
+}
+
+// Initial render
+const grid = document.getElementById('grid');
+
+PERSONAS.forEach(p => {
+  const s = state[p.id];
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.id = p.id;
+  card.setAttribute('data-status', s.status || '');
+
+  card.innerHTML = `
+    <div class="card-img-wrap" onclick="openLightbox('${p.id}', '${p.name} — ${p.era}')">
+      <img src="public/portraits/${p.id}.png" alt="${p.name}"
+        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+      <div class="missing" style="display:none">Not generated yet</div>
+      <div class="badge" data-v="${s.status || ''}" style="display:${s.status ? '' : 'none'}">
+        ${s.status === 'approve' ? 'Approved' : s.status === 'tweak' ? 'Tweak' : s.status === 'redo' ? 'Redo' : ''}
+      </div>
+    </div>
+    <div class="card-body">
+      <h3><span class="era-dot" style="background:${p.color}"></span>${p.name}</h3>
+      <div class="meta">${p.age}y/o ${p.gender} ${p.role} &middot; ${p.era} &middot; ${p.year}</div>
+      <div class="details">${p.details}</div>
+      <div class="actions">
+        <button data-action="approve" class="${s.status === 'approve' ? 'active-approve' : ''}"
+          onclick="setStatus('${p.id}','approve')">Approve</button>
+        <button data-action="tweak" class="${s.status === 'tweak' ? 'active-tweak' : ''}"
+          onclick="setStatus('${p.id}','tweak')">Tweak</button>
+        <button data-action="redo" class="${s.status === 'redo' ? 'active-redo' : ''}"
+          onclick="setStatus('${p.id}','redo')">Redo</button>
+      </div>
+      <textarea class="note-area" placeholder="Notes (e.g. 'too modern clothing', 'wrong skin tone')..."
+        oninput="setNote('${p.id}', this.value)">${s.note || ''}</textarea>
+    </div>
+  `;
+
+  grid.appendChild(card);
+});
+
+updateSummary();
+</script>
+</body>
+</html>

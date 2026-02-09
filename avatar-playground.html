@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avatar Playground — Rippled Echoes</title>
+<style>
+  :root {
+    --bg: #09090b;
+    --card: #18181b;
+    --card2: #1e1e22;
+    --border: #27272a;
+    --text: #fafafa;
+    --muted: #a1a1aa;
+    --primary: #6366f1;
+    --primary-fg: #fff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* Layout */
+  .top-bar {
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+  .top-bar h1 { font-size: 1rem; font-weight: 600; }
+  .top-bar .hint { font-size: 0.75rem; color: var(--muted); }
+
+  .columns {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: calc(100vh - 57px);
+  }
+  @media (max-width: 768px) {
+    .columns { grid-template-columns: 1fr; }
+    .controls { position: fixed; bottom: 0; left: 0; right: 0; z-index: 20; max-height: 50vh; overflow-y: auto; border-top: 1px solid var(--border); }
+  }
+
+  /* Controls panel */
+  .controls {
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    overflow-y: auto;
+  }
+  .control-group label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .chip {
+    padding: 0.3rem 0.65rem;
+    border-radius: 0.4rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chip:hover { background: #27272a; }
+  .chip.active { background: var(--primary); border-color: var(--primary); color: var(--primary-fg); }
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--primary);
+  }
+  .range-val {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+
+  /* Preview area */
+  .preview-area {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    overflow-y: auto;
+  }
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* ---------- Arrival screen mock ---------- */
+  .arrival-mock {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+    max-width: 420px;
+  }
+  .arrival-mock .traveling {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .arrival-mock .era-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  .arrival-mock .location {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .arrival-mock .meet-text {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .arrival-mock .meet-text strong { color: var(--text); }
+  .arrival-mock .go-btn {
+    margin-top: 0.5rem;
+    padding: 0.6rem 2rem;
+    background: var(--primary);
+    color: var(--primary-fg);
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: default;
+  }
+
+  /* ---------- Chat header mock ---------- */
+  .chat-mock {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    max-width: 500px;
+    overflow: hidden;
+  }
+  .chat-header {
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1rem;
+  }
+  .chat-header-row1 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  .globe-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.75rem;
+    background: #27272a;
+    border: none;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+  }
+  .header-actions {
+    display: flex;
+    gap: 0.35rem;
+  }
+  .header-actions button {
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.4rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 0.7rem;
+    cursor: default;
+  }
+  .header-actions button.primary-btn {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--primary-fg);
+  }
+  .chat-header-row2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .chat-header-row2 .info {
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .chat-header-row2 .info strong { font-weight: 600; }
+  .chat-header-row2 .info .sep { color: var(--muted); }
+  .chat-body {
+    padding: 1rem;
+    min-height: 120px;
+  }
+  .chat-bubble {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 1rem 1rem 1rem 0.25rem;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--text);
+    max-width: 85%;
+  }
+
+  /* ---------- Avatar gallery (all 12) ---------- */
+  .gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: end;
+  }
+  .gallery-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .gallery-item .name {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: center;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Avatar shared */
+  .avatar {
+    object-fit: cover;
+    display: block;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>Avatar Playground</h1>
+  <span class="hint">Tweak controls on the left, see both contexts update live</span>
+</div>
+
+<div class="columns">
+  <div class="controls" id="controls">
+    <!-- Persona picker -->
+    <div class="control-group">
+      <label>Preview Persona</label>
+      <div class="chip-row" id="persona-picker"></div>
+    </div>
+
+    <div class="control-group">
+      <label>Context</label>
+      <div class="chip-row" id="ctx-picker">
+        <button class="chip active" data-ctx="both">Both</button>
+        <button class="chip" data-ctx="arrival">Arrival</button>
+        <button class="chip" data-ctx="chat">Chat Header</button>
+        <button class="chip" data-ctx="gallery">All 12</button>
+      </div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--border)">
+
+    <div class="control-group">
+      <label>Arrival — Shape</label>
+      <div class="chip-row" id="arrival-shape">
+        <button class="chip active" data-v="16">Rounded square</button>
+        <button class="chip" data-v="50">Circle</button>
+        <button class="chip" data-v="8">Soft rect</button>
+      </div>
+    </div>
+    <div class="control-group">
+      <label>Arrival — Size</label>
+      <input type="range" id="arrival-size" min="64" max="200" value="128" step="4">
+      <div class="range-val" id="arrival-size-val">128px</div>
+    </div>
+    <div class="control-group">
+      <label>Arrival — Border</label>
+      <div class="chip-row" id="arrival-border">
+        <button class="chip active" data-v="2">2px era color</button>
+        <button class="chip" data-v="3">3px era color</button>
+        <button class="chip" data-v="0">None</button>
+        <button class="chip" data-v="shadow">Shadow</button>
+      </div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--border)">
+
+    <div class="control-group">
+      <label>Chat Header — Shape</label>
+      <div class="chip-row" id="chat-shape">
+        <button class="chip active" data-v="6">Rounded square</button>
+        <button class="chip" data-v="50">Circle</button>
+      </div>
+    </div>
+    <div class="control-group">
+      <label>Chat Header — Size</label>
+      <input type="range" id="chat-size" min="20" max="48" value="28" step="2">
+      <div class="range-val" id="chat-size-val">28px</div>
+    </div>
+    <div class="control-group">
+      <label>Chat Header — Border</label>
+      <div class="chip-row" id="chat-border">
+        <button class="chip active" data-v="0">None</button>
+        <button class="chip" data-v="1">1px era color</button>
+        <button class="chip" data-v="2">2px era color</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview-area" id="preview-area"></div>
+</div>
+
+<script>
+const PERSONAS = [
+  { id: 'ancient-egypt-nefertari', name: 'Nefertari', role: 'scribe apprentice', age: 13, era: 'Ancient Egypt', year: '1500 BCE', location: 'Thebes, Egypt', color: '#D4A843', greeting: "Welcome, traveler! I am learning to write the sacred symbols here at the great temple. Would you like to see?" },
+  { id: 'ancient-egypt-khufu', name: 'Khufu', role: "fisherman's son", age: 11, era: 'Ancient Egypt', year: '1500 BCE', location: 'Thebes, Egypt', color: '#D4A843', greeting: "Hello! The Nile is generous today — we caught many fish!" },
+  { id: 'han-dynasty-mei-lin', name: 'Mei Lin', role: "silk weaver's daughter", age: 12, era: 'Han Dynasty China', year: '100 CE', location: "Chang'an, China", color: '#C41E3A', greeting: "The merchants just arrived from the West! They bring the most wonderful stories." },
+  { id: 'han-dynasty-zhang-wei', name: 'Zhang Wei', role: "papermaker's apprentice", age: 14, era: 'Han Dynasty China', year: '100 CE', location: "Chang'an, China", color: '#C41E3A', greeting: "I discovered that mulberry bark makes the smoothest paper yet!" },
+  { id: 'medieval-west-africa-aminata', name: 'Aminata', role: 'student at Sankore', age: 13, era: 'Medieval West Africa', year: '1325 CE', location: 'Timbuktu, Mali', color: '#8B6914', greeting: "Peace be upon you! I was just studying the movements of the stars." },
+  { id: 'medieval-west-africa-kofi', name: 'Kofi', role: "goldsmith's apprentice", age: 12, era: 'Medieval West Africa', year: '1325 CE', location: 'Timbuktu, Mali', color: '#8B6914', greeting: "Look at this! I just finished my first gold pendant. My master says it is good work." },
+  { id: 'renaissance-italy-isabella', name: 'Isabella', role: "painter's apprentice", age: 14, era: 'Renaissance Italy', year: '1505 CE', location: 'Florence, Italy', color: '#6B4226', greeting: "Shh — I borrowed one of Leonardo's anatomy sketches to study. Don't tell anyone!" },
+  { id: 'renaissance-italy-marco', name: 'Marco', role: "printer's assistant", age: 11, era: 'Renaissance Italy', year: '1505 CE', location: 'Florence, Italy', color: '#6B4226', greeting: "We printed fifty copies of a book today! Fifty! Can you imagine?" },
+  { id: 'industrial-england-thomas', name: 'Thomas', role: "railway engineer's son", age: 13, era: 'Industrial Revolution', year: '1845 CE', location: 'Manchester', color: '#4A4A4A', greeting: "Father let me ride in the engine cab today. The speed — it's like flying!" },
+  { id: 'industrial-england-ada', name: 'Ada', role: 'student', age: 14, era: 'Industrial Revolution', year: '1845 CE', location: 'Manchester', color: '#4A4A4A', greeting: "I used to work the looms, but now I study mathematics. Numbers are like a secret language." },
+  { id: 'space-age-diana', name: 'Diana', role: "NASA engineer's daughter", age: 12, era: 'Space Age', year: '1969 CE', location: 'Houston, Texas', color: '#1B3A5C', greeting: "Mom says the astronauts are almost at the Moon! We watched the launch from our roof!" },
+  { id: 'space-age-james', name: 'James', role: 'Moon landing kid', age: 10, era: 'Space Age', year: '1969 CE', location: 'Houston, Texas', color: '#1B3A5C', greeting: "I saw Neil Armstrong walk on the Moon on TV! I'm going to build a real rocket someday." },
+];
+
+// State
+let activePersona = PERSONAS[0];
+let ctx = 'both';
+let arrivalShape = 16;  // border-radius %
+let arrivalSize = 128;
+let arrivalBorder = '2';
+let chatShape = 6;
+let chatSize = 28;
+let chatBorder = '0';
+
+function imgSrc(id) { return `public/portraits/${id}.png`; }
+
+// Chip group helper
+function initChips(containerId, onSelect) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      el.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      onSelect(chip.dataset.v || chip.dataset.ctx || chip.textContent);
+    });
+  });
+}
+
+// Build persona picker
+const pickerEl = document.getElementById('persona-picker');
+PERSONAS.forEach((p, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'chip' + (i === 0 ? ' active' : '');
+  btn.textContent = p.name;
+  btn.style.borderLeftColor = p.color;
+  btn.style.borderLeftWidth = '2px';
+  btn.addEventListener('click', () => {
+    pickerEl.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    activePersona = p;
+    render();
+  });
+  pickerEl.appendChild(btn);
+});
+
+// Wire up controls
+initChips('ctx-picker', v => { ctx = v; render(); });
+initChips('arrival-shape', v => { arrivalShape = parseInt(v); render(); });
+initChips('arrival-border', v => { arrivalBorder = v; render(); });
+initChips('chat-shape', v => { chatShape = parseInt(v); render(); });
+initChips('chat-border', v => { chatBorder = v; render(); });
+
+document.getElementById('arrival-size').addEventListener('input', e => {
+  arrivalSize = parseInt(e.target.value);
+  document.getElementById('arrival-size-val').textContent = arrivalSize + 'px';
+  render();
+});
+document.getElementById('chat-size').addEventListener('input', e => {
+  chatSize = parseInt(e.target.value);
+  document.getElementById('chat-size-val').textContent = chatSize + 'px';
+  render();
+});
+
+function avatarStyle(size, shape, border, color) {
+  let s = `width:${size}px;height:${size}px;border-radius:${shape}%;`;
+  if (border === 'shadow') {
+    s += `box-shadow:0 4px 16px rgba(0,0,0,0.4);`;
+  } else if (parseInt(border) > 0) {
+    s += `border:${border}px solid ${color};`;
+  }
+  return s;
+}
+
+function render() {
+  const area = document.getElementById('preview-area');
+  const p = activePersona;
+  let html = '';
+
+  // Arrival mock
+  if (ctx === 'both' || ctx === 'arrival') {
+    html += `<div>
+      <div class="section-label">Arrival Screen</div>
+      <div class="arrival-mock">
+        <img class="avatar" src="${imgSrc(p.id)}" alt="${p.name}"
+          style="${avatarStyle(arrivalSize, arrivalShape, arrivalBorder, p.color)}">
+        <div class="traveling">Traveling to...</div>
+        <div class="era-name" style="color:${p.color}">${p.era}</div>
+        <div class="location">${p.location} &middot; ${p.year}</div>
+        <div class="meet-text">You'll meet <strong>${p.name}</strong>, a ${p.age}-year-old ${p.role}</div>
+        <button class="go-btn">Go talk to them</button>
+      </div>
+    </div>`;
+  }
+
+  // Chat header mock
+  if (ctx === 'both' || ctx === 'chat') {
+    html += `<div>
+      <div class="section-label">Chat Header + Message</div>
+      <div class="chat-mock">
+        <div class="chat-header">
+          <div class="chat-header-row1">
+            <div class="globe-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+            </div>
+            <div class="header-actions">
+              <button>Ripples</button>
+              <button>Timeline</button>
+              <button class="primary-btn">Jump</button>
+            </div>
+          </div>
+          <div class="chat-header-row2">
+            <img class="avatar" src="${imgSrc(p.id)}" alt="${p.name}"
+              style="${avatarStyle(chatSize, chatShape, chatBorder, p.color)}">
+            <div class="info">
+              <strong>${p.name}</strong>
+              <span class="sep"> &middot; ${p.role} &middot; ${p.year}</span>
+            </div>
+          </div>
+        </div>
+        <div class="chat-body">
+          <div class="chat-bubble">${p.greeting}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Gallery (all 12 at current chat-header size)
+  if (ctx === 'gallery') {
+    html += `<div>
+      <div class="section-label">All 12 — Chat Header Size (${chatSize}px)</div>
+      <div class="gallery">
+        ${PERSONAS.map(pp => `
+          <div class="gallery-item">
+            <img class="avatar" src="${imgSrc(pp.id)}" alt="${pp.name}"
+              style="${avatarStyle(chatSize, chatShape, chatBorder, pp.color)}">
+            <span class="name">${pp.name}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div>
+      <div class="section-label">All 12 — Arrival Size (${arrivalSize}px)</div>
+      <div class="gallery">
+        ${PERSONAS.map(pp => `
+          <div class="gallery-item">
+            <img class="avatar" src="${imgSrc(pp.id)}" alt="${pp.name}"
+              style="${avatarStyle(arrivalSize, arrivalShape, arrivalBorder, pp.color)}">
+            <span class="name">${pp.name}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+  }
+
+  area.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>
