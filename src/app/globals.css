@@ -65,3 +65,8 @@
 .marker-pulse {
   animation: marker-pulse 1.5s ease-out infinite;
 }
+
+/* Hide curiosity badge when mobile keyboard is active */
+body.mobile-keyboard-active curiosity-badge {
+  display: none !important;
+}
