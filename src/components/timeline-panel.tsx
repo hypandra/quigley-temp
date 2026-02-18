@@ -42,7 +42,7 @@ function formatYearsAgo(year: number, currentYear: number) {
 
 function TimelineRow({ item, showSolidEventBorder = false }: { item: TimelineItem; showSolidEventBorder?: boolean }) {
   return (
-    <div className="flex min-h-24 gap-3 py-1.5">
+    <div className="flex min-h-24 min-w-0 gap-3 py-1.5">
       <div className="flex w-5 shrink-0 flex-col items-center">
         {item.type === 'stop' ? (
           <div
@@ -56,7 +56,7 @@ function TimelineRow({ item, showSolidEventBorder = false }: { item: TimelineIte
       </div>
       <div
         className={cn(
-          'mb-3 flex-1 flex-none rounded-xl border px-3 py-3',
+          'mb-3 min-w-0 flex-1 overflow-hidden rounded-xl border px-3 py-3',
           item.type === 'event'
             ? showSolidEventBorder
               ? 'border-border/60 bg-background/30'
@@ -68,16 +68,18 @@ function TimelineRow({ item, showSolidEventBorder = false }: { item: TimelineIte
       >
         <p
           className={cn(
-            'text-balance font-semibold text-foreground',
+            'text-balance break-words [overflow-wrap:anywhere] font-semibold text-foreground',
             item.type === 'event' ? 'text-xs' : 'text-sm'
           )}
         >
           {item.name}
         </p>
-        <p className="text-xs text-muted-foreground tabular-nums">
-          {item.yearLabel} · {item.distance}
+        <p className="text-xs text-muted-foreground tabular-nums break-words [overflow-wrap:anywhere]">
+          <span>{item.yearLabel}</span>
+          <span className="mx-1">·</span>
+          <span>{item.distance}</span>
         </p>
-        <p className="text-xs text-foreground/85 text-pretty">{item.subtitle}</p>
+        <p className="text-xs text-foreground/85 text-pretty break-words [overflow-wrap:anywhere]">{item.subtitle}</p>
       </div>
     </div>
   )
