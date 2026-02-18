@@ -1,10 +1,11 @@
 import pg from 'pg'
+import type { Pool as PgPool } from 'pg'
 
 const { Pool } = pg
 
-let pool: pg.Pool | null = null
+let pool: PgPool | null = null
 
-function getPool(): pg.Pool | null {
+function getPool(): PgPool | null {
   if (!process.env.DATABASE_URL) return null
   if (!pool) {
     pool = new Pool({
@@ -48,5 +49,5 @@ export function logChatTurn(params: {
       params.assistantResponse,
       params.model ?? 'anthropic/claude-3.5-haiku',
     ]
-  ).catch(err => console.error('Failed to log chat turn:', err))
+  ).catch((err: unknown) => console.error('Failed to log chat turn:', err))
 }
