@@ -5,9 +5,8 @@ import dynamic from 'next/dynamic'
 import { useSearchParams } from 'next/navigation'
 import { TimePeriod, Persona, TIME_PERIODS, getRandomPeriod, getRandomPersona } from '@/lib/time-periods'
 
-
-import { TIMELINE_EVENTS } from '@/lib/timeline-events'
 import { cn } from '@/lib/utils'
+import TimelinePanel from '@/components/timeline-panel'
 
 const GlobePanel = dynamic(() => import('@/components/globe-panel'), { ssr: false })
 
@@ -152,15 +151,6 @@ interface Connection {
 }
 
 type AppState = 'home' | 'arriving' | 'chatting' | 'effects' | 'timeline' | 'globe'
-
-function formatYearsAgo(year: number, currentYear: number) {
-  const diff = Math.max(0, currentYear - year)
-  const rounded = diff >= 1000 ? Math.round(diff / 100) * 100 : diff
-  const formatter = new Intl.NumberFormat('en-US')
-  return diff >= 1000
-    ? `~${formatter.format(rounded)} years ago`
-    : `${formatter.format(diff)} years ago`
-}
 
 function syncUrlParams(period: TimePeriod | null, persona: Persona | null) {
   const url = new URL(window.location.href)
@@ -474,21 +464,6 @@ function Home() {
     setState('globe')
   }
 
-  const currentYear = new Date().getFullYear()
-  const timelineStops = journey.map((stop, index) => ({
-    key: `${stop.period.id}-${index}`,
-    name: stop.period.era,
-    year: stop.period.year,
-    yearLabel: stop.period.yearLabel,
-    location: stop.period.location,
-    color: stop.period.color,
-    distance: formatYearsAgo(stop.period.year, currentYear),
-  }))
-  const oldestStop = timelineStops.reduce<typeof timelineStops[number] | null>((oldest, stop) => {
-    if (!oldest) return stop
-    return stop.year < oldest.year ? stop : oldest
-  }, null)
-
   // HOME SCREEN
   if (state === 'home') {
     return (
@@ -787,112 +762,12 @@ function Home() {
 
         {/* Timeline panel (overlay) */}
         {showTimeline && (
-          <div className="absolute inset-0 z-50 bg-background/95 flex flex-col">
-            <div className="shrink-0 border-b px-4 py-3 flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-balance">Your Timeline</h3>
-                <p className="text-xs text-muted-foreground text-pretty">
-                  See how far back you have traveled so far.
-                </p>
-              </div>
-              <button
-                onClick={() => { setShowTimeline(false); setState('chatting') }}
-                className="text-xs px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              >
-                Back to Chat
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className="max-w-4xl mx-auto space-y-6">
-                {journey.length === 0 ? (
-                  <div className="rounded-2xl border bg-card p-6 text-center space-y-3">
-                    <p className="text-sm text-muted-foreground text-pretty">
-                      Your timeline is waiting. Jump to an era to start exploring history.
-                    </p>
-                    <button
-                      onClick={jump}
-                      className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
-                    >
-                      Jump to First Era
-                    </button>
-                  </div>
-                ) : (
-                  <div className="rounded-2xl border bg-card p-4 md:p-6 space-y-4">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="tabular-nums">Now · {currentYear} CE</span>
-                      <span className="tabular-nums">
-                        Oldest · {oldestStop?.yearLabel ?? 'Unknown'}
-                      </span>
-                    </div>
-                    <div className="space-y-0">
-                      {(() => {
-                        const stops = timelineStops.map(s => ({
-                          type: 'stop' as const,
-                          key: s.key,
-                          year: s.year,
-                          yearLabel: s.yearLabel,
-                          name: s.name,
-                          subtitle: s.location,
-                          distance: s.distance,
-                          color: s.color,
-                          isCurrent: s.year === currentStop.period.year,
-                        }))
-                        const events = TIMELINE_EVENTS.map(e => ({
-                          type: 'event' as const,
-                          key: e.id,
-                          year: e.year,
-                          yearLabel: e.yearLabel,
-                          name: e.label,
-                          subtitle: e.description,
-                          distance: formatYearsAgo(e.year, currentYear),
-                          color: undefined as string | undefined,
-                          isCurrent: false,
-                        }))
-                        const merged = [...stops, ...events].sort((a, b) => b.year - a.year)
-                        return merged.map((item, i) => (
-                          <div key={item.key} className="flex gap-3">
-                            <div className="flex flex-col items-center">
-                              {item.type === 'stop' ? (
-                                <div
-                                  className="mt-2.5 size-3 shrink-0 rounded-full border-2 border-background"
-                                  style={{ backgroundColor: item.color }}
-                                />
-                              ) : (
-                                <div className="mt-3 size-2 shrink-0 rounded-full bg-muted-foreground/50" />
-                              )}
-                              {i < merged.length - 1 && (
-                                <div className={cn(
-                                  'w-px flex-1 min-h-2',
-                                  item.type === 'stop' ? 'bg-border' : 'bg-border/50'
-                                )} />
-                              )}
-                            </div>
-                            <div className={cn(
-                              'flex-1 rounded-xl border px-3 py-2 mb-2',
-                              item.type === 'event'
-                                ? 'border-dashed border-border bg-background/40'
-                                : item.isCurrent
-                                  ? 'bg-primary/20 border-primary/40'
-                                  : 'bg-background/60'
-                            )}>
-                              <p className={cn(
-                                'font-semibold text-balance',
-                                item.type === 'event' ? 'text-xs' : 'text-sm'
-                              )}>{item.name}</p>
-                              <p className="text-xs text-muted-foreground tabular-nums">
-                                {item.yearLabel} · {item.distance}
-                              </p>
-                              <p className="text-xs text-muted-foreground text-pretty">{item.subtitle}</p>
-                            </div>
-                          </div>
-                        ))
-                      })()}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <TimelinePanel
+            currentStop={currentStop}
+            journey={journey}
+            onClose={() => { setShowTimeline(false); setState('chatting') }}
+            onJump={jump}
+          />
         )}
 
         {/* Messages */}
