@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { TIME_PERIODS } from '@/lib/time-periods'
+import { portraitUrl } from '@/lib/portrait-url'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -210,7 +211,7 @@ export default function BrowsePage() {
                 <div className="flex items-center gap-3">
                   {item.portrait ? (
                     <img
-                      src={item.portrait}
+                      src={portraitUrl(item.portrait, 112)}
                       alt={item.name}
                       className="h-14 w-14 rounded-full object-cover"
                     />

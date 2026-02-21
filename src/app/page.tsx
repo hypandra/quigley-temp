@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { TimePeriod, Persona, TIME_PERIODS, getRandomPeriod, getRandomPersona } from '@/lib/time-periods'
+import { portraitUrl } from '@/lib/portrait-url'
 
 import { cn } from '@/lib/utils'
 import TimelinePanel from '@/components/timeline-panel'
@@ -282,7 +283,8 @@ function Home() {
     const stop = { period, persona }
     setCurrentStop(stop)
     setJourney([stop])
-    setState('chatting')
+    const view = searchParams.get('view')
+    setState(view === 'arrive' ? 'arriving' : 'chatting')
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const scrollToBottom = useCallback(() => {
@@ -535,7 +537,7 @@ function Home() {
           <div className={stepClass(0)}>
             {currentStop.persona.portrait ? (
               <img
-                src={currentStop.persona.portrait}
+                src={portraitUrl(currentStop.persona.portrait, 400)}
                 alt={currentStop.persona.name}
                 className="mx-auto h-[200px] w-[200px] rounded-full object-cover shadow-lg"
               />
@@ -659,7 +661,7 @@ function Home() {
             <div className="flex items-center gap-2">
               {currentStop.persona.portrait ? (
                 <img
-                  src={currentStop.persona.portrait}
+                  src={portraitUrl(currentStop.persona.portrait, 96)}
                   alt={currentStop.persona.name}
                   className="h-12 w-12 rounded-full object-cover shrink-0"
                 />
