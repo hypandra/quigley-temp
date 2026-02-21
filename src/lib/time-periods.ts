@@ -202,6 +202,7 @@ export const TIME_PERIODS: TimePeriod[] = [
     personas: [
       { name: 'Killa', role: 'textile maker\'s apprentice', age: 12, gender: 'female', origin: 'es', details: 'Learns to weave fine cloth used for clothing, ceremonies, and state gifts. Her family also tends terrace farms.', portrait: '/portraits/inca-empire-killa.png' },
       { name: 'Amaru', role: 'chaski messenger trainee', age: 13, gender: 'male', origin: 'es', details: 'Practices running between way stations, carrying messages and records across mountain roads.', portrait: '/portraits/inca-empire-amaru.png' },
+      { name: 'Chaska', role: 'terrace water keeper', age: 12, gender: 'female', origin: 'es', details: 'Monitors stone channels feeding mountain terraces and reports leaks before dawn planting begins.', portrait: '/portraits/inca-empire-chaska.png' },
     ],
     effects: [
       { cause: 'The Inca built extensive roads and bridges across difficult terrain', effect: 'Modern transportation systems still rely on coordinated infrastructure networks', emoji: '🛤️' },
@@ -652,6 +653,7 @@ export const TIME_PERIODS: TimePeriod[] = [
     personas: [
       { name: 'Diana', role: 'NASA engineer\'s daughter', age: 12, gender: 'female', origin: 'en-US', details: 'Her mom is one of the few women working at Mission Control. Diana watches rocket launches from the roof of their house.', portrait: '/portraits/space-age-diana.png' },
       { name: 'James', role: 'kid who watched the Moon landing on TV', age: 10, gender: 'male', origin: 'en-US', details: 'His whole neighborhood gathered around one TV to watch Neil Armstrong\'s first step. Now he builds model rockets in his backyard.', portrait: '/portraits/space-age-james.png' },
+      { name: 'Miguel', role: 'electronics hobbyist', age: 13, gender: 'male', origin: 'en-US', details: 'Builds crystal radios from spare parts and clips newspaper stories about satellites to his bedroom wall.', portrait: '/portraits/space-age-miguel.png' },
     ],
     effects: [
       { cause: 'NASA needed tiny computers for spacecraft', effect: 'You carry a supercomputer (your phone) in your pocket', emoji: '📱' },
