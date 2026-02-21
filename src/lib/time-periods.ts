@@ -74,8 +74,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#5B7C8D',
     description: 'Norse settlers establish farms along Greenland\'s fjords, raising livestock and trading walrus ivory across the North Atlantic.',
     personas: [
-      { name: 'Astrid', role: 'farmer\'s daughter', age: 12, gender: 'female', origin: 'en-GB', details: 'Helps manage sheep and goats during short summers and preserve food for long winters.' },
-      { name: 'Leif', role: 'boat repair apprentice', age: 13, gender: 'male', origin: 'en-GB', details: 'Learns to patch hulls and rigging for voyages to Iceland and Norway.' },
+      { name: 'Astrid', role: 'farmer\'s daughter', age: 12, gender: 'female', origin: 'en-GB', details: 'Helps manage sheep and goats during short summers and preserve food for long winters.', portrait: '/portraits/norse-greenland-astrid.png' },
+      { name: 'Leif', role: 'boat repair apprentice', age: 13, gender: 'male', origin: 'en-GB', details: 'Learns to patch hulls and rigging for voyages to Iceland and Norway.', portrait: '/portraits/norse-greenland-leif.png' },
     ],
     effects: [
       { cause: 'Settlers adapted farming and trade to Arctic conditions', effect: 'Cold-climate engineering and food storage are still essential in northern regions', emoji: '❄️' },
@@ -92,8 +92,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#4F6D5A',
     description: 'Hedeby is a major Viking trading port where merchants bargain over silk, furs, glass, and metalwork across languages and cultures.',
     personas: [
-      { name: 'Rask', role: 'merchant\'s son', age: 11, gender: 'male', origin: 'en-GB', details: 'Keeps tally sticks at the dock, haggles with travelers, and jokes that most people who fear Vikings have never met a trader.' },
-      { name: 'Sigrid', role: 'ledger apprentice', age: 13, gender: 'female', origin: 'en-GB', details: 'Learns weights, measures, and loan records from her mother, who manages contracts for incoming ships.' },
+      { name: 'Rask', role: 'merchant\'s son', age: 11, gender: 'male', origin: 'en-GB', details: 'Keeps tally sticks at the dock, haggles with travelers, and jokes that most people who fear Vikings have never met a trader.', portrait: '/portraits/hedeby-trade-hub-rask.png' },
+      { name: 'Sigrid', role: 'ledger apprentice', age: 13, gender: 'female', origin: 'en-GB', details: 'Learns weights, measures, and loan records from her mother, who manages contracts for incoming ships.', portrait: '/portraits/hedeby-trade-hub-sigrid.png' },
     ],
     effects: [
       { cause: 'Viking ports linked northern Europe to long-distance trade routes', effect: 'Global commerce still depends on multicultural port cities and logistics hubs', emoji: '⚓' },
@@ -128,8 +128,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#A57C1B',
     description: 'As news of Mansa Musa\'s pilgrimage spreads, people debate gold\'s value and watch trade terms shift in unpredictable ways.',
     personas: [
-      { name: 'Amina', role: 'market helper', age: 9, gender: 'female', origin: 'en-GB', details: 'Carries small scales for her aunt and hears adults argue that too much gold has made ordinary exchange harder.' },
-      { name: 'Bakary', role: 'caravan clerk\'s nephew', age: 12, gender: 'male', origin: 'en-GB', details: 'Copies prices for salt, cloth, and copper while merchants recalculate what a fair trade means this month.' },
+      { name: 'Amina', role: 'market helper', age: 9, gender: 'female', origin: 'en-GB', details: 'Carries small scales for her aunt and hears adults argue that too much gold has made ordinary exchange harder.', portrait: '/portraits/timbuktu-gold-shock-amina.png' },
+      { name: 'Bakary', role: 'caravan clerk\'s nephew', age: 12, gender: 'male', origin: 'en-GB', details: 'Copies prices for salt, cloth, and copper while merchants recalculate what a fair trade means this month.', portrait: '/portraits/timbuktu-gold-shock-bakary.png' },
     ],
     effects: [
       { cause: 'Large gold flows disrupted local and regional price systems', effect: 'Modern economies still face inflation shocks when money supply or supply chains change quickly', emoji: '📉' },
@@ -146,8 +146,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#7A5A3A',
     description: 'Stone cities, regional trade, and skilled crafts define life at Great Zimbabwe. Merchants connect inland communities to ports on the Indian Ocean.',
     personas: [
-      { name: 'Nyasha', role: 'stone mason\'s apprentice', age: 13, gender: 'female', origin: 'en-GB', details: 'Learns to shape granite blocks for walls built without mortar. She helps her family maintain homes and gathering spaces.' },
-      { name: 'Tawanda', role: 'cattle keeper and trader\'s son', age: 12, gender: 'male', origin: 'en-GB', details: 'Helps move cattle between grazing lands and carries goods for traders exchanging gold, ivory, and cloth.' },
+      { name: 'Nyasha', role: 'stone mason\'s apprentice', age: 13, gender: 'female', origin: 'en-GB', details: 'Learns to shape granite blocks for walls built without mortar. She helps her family maintain homes and gathering spaces.', portrait: '/portraits/great-zimbabwe-nyasha.png' },
+      { name: 'Tawanda', role: 'cattle keeper and trader\'s son', age: 12, gender: 'male', origin: 'en-GB', details: 'Helps move cattle between grazing lands and carries goods for traders exchanging gold, ivory, and cloth.', portrait: '/portraits/great-zimbabwe-tawanda.png' },
     ],
     effects: [
       { cause: 'Communities built durable stone architecture and organized cities', effect: 'Urban planning and public building projects still shape modern life', emoji: '🧱' },
@@ -164,8 +164,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#9A6B2F',
     description: 'Songhai becomes one of the largest empires in African history, controlling major Saharan trade routes and centers of scholarship.',
     personas: [
-      { name: 'Hawa', role: 'market recorder', age: 14, gender: 'female', origin: 'en-GB', details: 'Helps track caravan goods entering Gao, including salt, textiles, and books from North Africa.' },
-      { name: 'Idrissa', role: 'riverboat apprentice', age: 12, gender: 'male', origin: 'en-GB', details: 'Learns to transport grain and merchants along the Niger River, linking farms to city markets.' },
+      { name: 'Hawa', role: 'market recorder', age: 14, gender: 'female', origin: 'en-GB', details: 'Helps track caravan goods entering Gao, including salt, textiles, and books from North Africa.', portrait: '/portraits/songhai-empire-hawa.png' },
+      { name: 'Idrissa', role: 'riverboat apprentice', age: 12, gender: 'male', origin: 'en-GB', details: 'Learns to transport grain and merchants along the Niger River, linking farms to city markets.', portrait: '/portraits/songhai-empire-idrissa.png' },
     ],
     effects: [
       { cause: 'Songhai linked trans-Saharan and river trade systems', effect: 'Modern economies still depend on integrated transport and trade corridors', emoji: '🛶' },
@@ -182,8 +182,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#6E4B2A',
     description: 'The Kingdom of Kongo governs a large central African state with organized provinces, diplomacy, and long-distance trade.',
     personas: [
-      { name: 'Mpemba', role: 'court messenger', age: 13, gender: 'female', origin: 'en-GB', details: 'Carries letters between provincial leaders and the royal court, learning protocol and political decision-making.' },
-      { name: 'Lutete', role: 'blacksmith\'s apprentice', age: 12, gender: 'male', origin: 'en-GB', details: 'Helps forge tools and ceremonial objects traded between towns and farming communities.' },
+      { name: 'Mpemba', role: 'court messenger', age: 13, gender: 'female', origin: 'en-GB', details: 'Carries letters between provincial leaders and the royal court, learning protocol and political decision-making.', portrait: '/portraits/kingdom-of-kongo-mpemba.png' },
+      { name: 'Lutete', role: 'blacksmith\'s apprentice', age: 12, gender: 'male', origin: 'en-GB', details: 'Helps forge tools and ceremonial objects traded between towns and farming communities.', portrait: '/portraits/kingdom-of-kongo-lutete.png' },
     ],
     effects: [
       { cause: 'Kongo developed centralized governance across many communities', effect: 'Modern states still rely on regional administration and shared legal frameworks', emoji: '🏛️' },
@@ -200,8 +200,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#B66A2A',
     description: 'The Inca govern a vast Andean empire linked by roads, terraces, and relay runners. Engineers adapt mountain landscapes to feed millions.',
     personas: [
-      { name: 'Killa', role: 'textile maker\'s apprentice', age: 12, gender: 'female', origin: 'es', details: 'Learns to weave fine cloth used for clothing, ceremonies, and state gifts. Her family also tends terrace farms.' },
-      { name: 'Amaru', role: 'chaski messenger trainee', age: 13, gender: 'male', origin: 'es', details: 'Practices running between way stations, carrying messages and records across mountain roads.' },
+      { name: 'Killa', role: 'textile maker\'s apprentice', age: 12, gender: 'female', origin: 'es', details: 'Learns to weave fine cloth used for clothing, ceremonies, and state gifts. Her family also tends terrace farms.', portrait: '/portraits/inca-empire-killa.png' },
+      { name: 'Amaru', role: 'chaski messenger trainee', age: 13, gender: 'male', origin: 'es', details: 'Practices running between way stations, carrying messages and records across mountain roads.', portrait: '/portraits/inca-empire-amaru.png' },
     ],
     effects: [
       { cause: 'The Inca built extensive roads and bridges across difficult terrain', effect: 'Modern transportation systems still rely on coordinated infrastructure networks', emoji: '🛤️' },
@@ -218,8 +218,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#8C5E3C',
     description: 'Tiwanaku grows around Lake Titicaca with monumental architecture, raised-field agriculture, and regional influence across the Andes.',
     personas: [
-      { name: 'Yana', role: 'field engineer\'s daughter', age: 12, gender: 'female', origin: 'es', details: 'Helps maintain raised planting beds that protect crops from frost and improve harvests.' },
-      { name: 'Inti', role: 'stone carver trainee', age: 13, gender: 'male', origin: 'es', details: 'Learns precise stone shaping for temples and gateways used in civic and ceremonial life.' },
+      { name: 'Yana', role: 'field engineer\'s daughter', age: 12, gender: 'female', origin: 'es', details: 'Helps maintain raised planting beds that protect crops from frost and improve harvests.', portrait: '/portraits/tiwanaku-state-yana.png' },
+      { name: 'Inti', role: 'stone carver trainee', age: 13, gender: 'male', origin: 'es', details: 'Learns precise stone shaping for temples and gateways used in civic and ceremonial life.', portrait: '/portraits/tiwanaku-state-inti.png' },
     ],
     effects: [
       { cause: 'Andean farmers engineered raised fields and water channels', effect: 'Climate-resilient agriculture today still uses landscape-based design', emoji: '🌱' },
@@ -236,8 +236,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#A66D3A',
     description: 'Muisca communities organize powerful chiefdoms in the northern Andes, known for salt, goldwork, and mountain agriculture.',
     personas: [
-      { name: 'Suamox', role: 'salt trader\'s apprentice', age: 12, gender: 'female', origin: 'es', details: 'Learns to process and exchange salt bricks, a key resource traded across highland routes.' },
-      { name: 'Chiminigagua', role: 'gold artisan trainee', age: 13, gender: 'male', origin: 'es', details: 'Practices lost-wax casting techniques to create small ritual and ceremonial objects.' },
+      { name: 'Suamox', role: 'salt trader\'s apprentice', age: 12, gender: 'female', origin: 'es', details: 'Learns to process and exchange salt bricks, a key resource traded across highland routes.', portrait: '/portraits/muisca-confederation-suamox.png' },
+      { name: 'Chiminigagua', role: 'gold artisan trainee', age: 13, gender: 'male', origin: 'es', details: 'Practices lost-wax casting techniques to create small ritual and ceremonial objects.', portrait: '/portraits/muisca-confederation-chiminigagua.png' },
     ],
     effects: [
       { cause: 'Muisca economies specialized in salt production and regional exchange', effect: 'Strategic resources still shape regional power and trade networks', emoji: '🧂' },
@@ -254,8 +254,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#2F7D6B',
     description: 'The lake city runs on canals, causeways, and chinampa agriculture, with produce and goods moving by canoe into crowded markets.',
     personas: [
-      { name: 'Quauhtli', role: 'chinampa grower\'s child', age: 14, gender: 'male', origin: 'es', details: 'Paddles dawn harvests to market and measures small purchases in cacao beans, not metal coins.' },
-      { name: 'Xochitl', role: 'calpolli porter apprentice', age: 12, gender: 'female', origin: 'es', details: 'Carries reed baskets from canoe landings to stalls because there are no draft animals hauling city carts.' },
+      { name: 'Quauhtli', role: 'chinampa grower\'s child', age: 14, gender: 'male', origin: 'es', details: 'Paddles dawn harvests to market and measures small purchases in cacao beans, not metal coins.', portrait: '/portraits/tenochtitlan-chinampas-quauhtli.png' },
+      { name: 'Xochitl', role: 'calpolli porter apprentice', age: 12, gender: 'female', origin: 'es', details: 'Carries reed baskets from canoe landings to stalls because there are no draft animals hauling city carts.', portrait: '/portraits/tenochtitlan-chinampas-xochitl.png' },
     ],
     effects: [
       { cause: 'Chinampa farming kept intensive food production close to the city', effect: 'Urban farming and short supply chains still improve food resilience', emoji: '🛶' },
@@ -272,8 +272,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#C17C3A',
     description: 'Yolngu communities care for Country through seasonal knowledge, trade, ceremony, and law. Songlines and kinship guide learning and responsibility.',
     personas: [
-      { name: 'Marrkapmirr', role: 'young knowledge keeper', age: 12, gender: 'female', origin: 'en-AU', details: 'Learns songs, stories, and place-based knowledge from Elders, including when to fish, gather, and hold ceremonies.' },
-      { name: 'Djalu', role: 'canoe maker\'s nephew', age: 11, gender: 'male', origin: 'en-AU', details: 'Helps shape bark canoes and joins supervised fishing trips through mangroves and coastal waters.' },
+      { name: 'Marrkapmirr', role: 'young knowledge keeper', age: 12, gender: 'female', origin: 'en-AU', details: 'Learns songs, stories, and place-based knowledge from Elders, including when to fish, gather, and hold ceremonies.', portrait: '/portraits/yolngu-country-marrkapmirr.png' },
+      { name: 'Djalu', role: 'canoe maker\'s nephew', age: 11, gender: 'male', origin: 'en-AU', details: 'Helps shape bark canoes and joins supervised fishing trips through mangroves and coastal waters.', portrait: '/portraits/yolngu-country-djalu.png' },
     ],
     effects: [
       { cause: 'First Nations communities maintained detailed ecological knowledge for thousands of years', effect: 'Land management today increasingly draws on Indigenous fire and seasonal practices', emoji: '🔥' },
@@ -290,8 +290,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#0F6C7A',
     description: 'Expert navigators cross the Pacific using stars, currents, winds, and wave patterns. Ocean voyaging links island communities across vast distances.',
     personas: [
-      { name: 'Leilani', role: 'navigator\'s apprentice', age: 13, gender: 'female', origin: 'en-NZ', details: 'Studies star paths and wave reading at night, preparing for long canoe voyages between islands.' },
-      { name: 'Sione', role: 'canoe builder\'s son', age: 12, gender: 'male', origin: 'en-NZ', details: 'Learns how lashings, sails, and hull design help canoes stay stable in open-ocean travel.' },
+      { name: 'Leilani', role: 'navigator\'s apprentice', age: 13, gender: 'female', origin: 'en-NZ', details: 'Studies star paths and wave reading at night, preparing for long canoe voyages between islands.', portrait: '/portraits/polynesian-navigators-leilani.png' },
+      { name: 'Sione', role: 'canoe builder\'s son', age: 12, gender: 'male', origin: 'en-NZ', details: 'Learns how lashings, sails, and hull design help canoes stay stable in open-ocean travel.', portrait: '/portraits/polynesian-navigators-sione.png' },
     ],
     effects: [
       { cause: 'Polynesian wayfinding mapped the Pacific without modern instruments', effect: 'Navigation science today still studies stars, currents, and environmental cues', emoji: '🧭' },
@@ -326,8 +326,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#A35C2A',
     description: 'Murano\'s furnaces produce world-famous glass while families guard techniques as protected trade knowledge under close oversight.',
     personas: [
-      { name: 'Iacomo di Zuane', role: 'glassmaker\'s apprentice', age: 12, gender: 'male', origin: 'it', details: 'Sweeps ash, preheats tools, and memorizes furnace recipes in whispers because craft secrets are tightly controlled.' },
-      { name: 'Lucia', role: 'furnace tender\'s niece', age: 11, gender: 'female', origin: 'it', details: 'Measures days by furnace cycles and learns which visitors may watch the workshop and which must be turned away.' },
+      { name: 'Iacomo di Zuane', role: 'glassmaker\'s apprentice', age: 12, gender: 'male', origin: 'it', details: 'Sweeps ash, preheats tools, and memorizes furnace recipes in whispers because craft secrets are tightly controlled.', portrait: '/portraits/murano-glass-secrets-iacomo-di-zuane.png' },
+      { name: 'Lucia', role: 'furnace tender\'s niece', age: 11, gender: 'female', origin: 'it', details: 'Measures days by furnace cycles and learns which visitors may watch the workshop and which must be turned away.', portrait: '/portraits/murano-glass-secrets-lucia.png' },
     ],
     effects: [
       { cause: 'Murano concentrated specialist manufacturing under legal restrictions', effect: 'Modern high-value industries still use export controls and trade-secret law', emoji: '🔥' },
@@ -344,8 +344,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#9B5D73',
     description: 'Court life revolves around poetry, calligraphy, layered clothing, and ritual. Social status is shaped by elegance as much as power.',
     personas: [
-      { name: 'Akiko', role: 'court attendant in training', age: 13, gender: 'female', origin: 'ja', details: 'Rises before dawn to grind ink, copy kana, and practice waka; one blot on scented paper can ruin a match.' },
-      { name: 'Haru', role: 'page to a noble household', age: 12, gender: 'male', origin: 'ja', details: 'Carries folded notes between mansions, checking sleeve colors and rank markers so he does not shame his household.' },
+      { name: 'Akiko', role: 'court attendant in training', age: 13, gender: 'female', origin: 'ja', details: 'Rises before dawn to grind ink, copy kana, and practice waka; one blot on scented paper can ruin a match.', portrait: '/portraits/heian-kyoto-akiko.png' },
+      { name: 'Haru', role: 'page to a noble household', age: 12, gender: 'male', origin: 'ja', details: 'Carries folded notes between mansions, checking sleeve colors and rank markers so he does not shame his household.', portrait: '/portraits/heian-kyoto-haru.png' },
     ],
     effects: [
       { cause: 'Heian elites treated writing and aesthetics as core social skills', effect: 'Communication style still shapes reputation in schools, workplaces, and online spaces', emoji: '✍️' },
@@ -362,8 +362,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#8A6B3F',
     description: 'Cahokia grows into one of the largest cities north of Mesoamerica, with earthen mounds, trade networks, and public games.',
     personas: [
-      { name: 'Tala', role: 'chunkey player in training', age: 12, gender: 'female', origin: 'en-US', details: 'Trains at first light for chunkey, sprinting after the rolling stone while elders and traders crowd the plaza.' },
-      { name: 'Nokosi', role: 'mound builder\'s nephew', age: 13, gender: 'male', origin: 'en-US', details: 'Hauls basket after basket up mound ramps and learns feast-day timings by drumbeat and sunrise.' },
+      { name: 'Tala', role: 'chunkey player in training', age: 12, gender: 'female', origin: 'en-US', details: 'Trains at first light for chunkey, sprinting after the rolling stone while elders and traders crowd the plaza.', portrait: '/portraits/cahokia-metropolis-tala.png' },
+      { name: 'Nokosi', role: 'mound builder\'s nephew', age: 13, gender: 'male', origin: 'en-US', details: 'Hauls basket after basket up mound ramps and learns feast-day timings by drumbeat and sunrise.', portrait: '/portraits/cahokia-metropolis-nokosi.png' },
     ],
     effects: [
       { cause: 'Cahokia organized labor for massive civic construction', effect: 'Large public works still depend on coordinated planning and community effort', emoji: '🏗️' },
@@ -380,8 +380,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#3C4F63',
     description: 'Commodore Perry\'s steam-powered "black ships" arrive, shocking a society that had enforced long isolation and triggering rapid political change.',
     personas: [
-      { name: 'Ren', role: 'harbor clerk\'s apprentice', age: 14, gender: 'male', origin: 'ja', details: 'At the bay office, he copies hurried notices as the kurofune ("black ships") sit offshore breathing smoke.' },
-      { name: 'Aoi', role: 'fisher family daughter', age: 12, gender: 'female', origin: 'ja', details: 'Mends nets on the shore, then runs home with rumors that iron ships can fire farther than any coastal cannon.' },
+      { name: 'Ren', role: 'harbor clerk\'s apprentice', age: 14, gender: 'male', origin: 'ja', details: 'At the bay office, he copies hurried notices as the kurofune ("black ships") sit offshore breathing smoke.', portrait: '/portraits/edo-black-ships-ren.png' },
+      { name: 'Aoi', role: 'fisher family daughter', age: 12, gender: 'female', origin: 'ja', details: 'Mends nets on the shore, then runs home with rumors that iron ships can fire farther than any coastal cannon.', portrait: '/portraits/edo-black-ships-aoi.png' },
     ],
     effects: [
       { cause: 'Foreign pressure forced the end of Japan\'s isolation policy', effect: 'Sudden globalization still reshapes economies and identity today', emoji: '🌊' },
@@ -398,8 +398,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#5E4B56',
     description: 'Japan\'s first railway opens between Shimbashi and Yokohama, symbolizing modernization while threatening older livelihoods.',
     personas: [
-      { name: 'Tobei', role: 'rickshaw puller\'s son', age: 12, gender: 'male', origin: 'ja', details: 'Counts train whistles with awe and dread, wondering if speed will feed his family or leave them behind.' },
-      { name: 'Kiyo', role: 'ticket runner', age: 11, gender: 'female', origin: 'ja', details: 'Helps queue passengers and hears arguments about whether iron rails honor progress or insult tradition.' },
+      { name: 'Tobei', role: 'rickshaw puller\'s son', age: 12, gender: 'male', origin: 'ja', details: 'Counts train whistles with awe and dread, wondering if speed will feed his family or leave them behind.', portrait: '/portraits/meiji-railway-shock-tobei.png' },
+      { name: 'Kiyo', role: 'ticket runner', age: 11, gender: 'female', origin: 'ja', details: 'Helps queue passengers and hears arguments about whether iron rails honor progress or insult tradition.', portrait: '/portraits/meiji-railway-shock-kiyo.png' },
     ],
     effects: [
       { cause: 'Railways compressed distance and accelerated national integration', effect: 'High-speed mobility still drives economic concentration and social change', emoji: '🚉' },
@@ -416,8 +416,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#6C7A89',
     description: 'After the eruption of Mount Tambora, temperatures drop and crops fail. Frost and even snow appear during summer in parts of New England.',
     personas: [
-      { name: 'Mercy', role: 'farm child', age: 11, gender: 'female', origin: 'en-US', details: 'Starts July mornings scraping frost from bean leaves and keeps a weather diary beside the stove.' },
-      { name: 'Jonah', role: 'schoolboy and wood gatherer', age: 12, gender: 'male', origin: 'en-US', details: 'Chops wood in what should be summer and listens as adults argue about leaving for Ohio.' },
+      { name: 'Mercy', role: 'farm child', age: 11, gender: 'female', origin: 'en-US', details: 'Starts July mornings scraping frost from bean leaves and keeps a weather diary beside the stove.', portrait: '/portraits/year-without-summer-mercy.png' },
+      { name: 'Jonah', role: 'schoolboy and wood gatherer', age: 12, gender: 'male', origin: 'en-US', details: 'Chops wood in what should be summer and listens as adults argue about leaving for Ohio.', portrait: '/portraits/year-without-summer-jonah.png' },
     ],
     effects: [
       { cause: 'Volcanic ash cooled the climate and disrupted harvests', effect: 'Global climate shocks still threaten food systems and migration patterns', emoji: '🌫️' },
@@ -434,8 +434,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#5E5E5E',
     description: 'Textile mills run day and night. Young workers face strict schedules and harsh noise, while some build new forms of education and activism.',
     personas: [
-      { name: 'Eliza', role: 'child doffer', age: 10, gender: 'female', origin: 'en-US', details: 'Runs frame to frame swapping full bobbins all day, living by mill bells where every minute belongs to the looms.' },
-      { name: 'Nora', role: 'boardinghouse resident', age: 13, gender: 'female', origin: 'en-US', details: 'Counts bobbins through the shift, then reads borrowed essays in the dormitory parlor under strict matrons.' },
+      { name: 'Eliza', role: 'child doffer', age: 10, gender: 'female', origin: 'en-US', details: 'Runs frame to frame swapping full bobbins all day, living by mill bells where every minute belongs to the looms.', portrait: '/portraits/lowell-mill-girls-eliza.png' },
+      { name: 'Nora', role: 'boardinghouse resident', age: 13, gender: 'female', origin: 'en-US', details: 'Counts bobbins through the shift, then reads borrowed essays in the dormitory parlor under strict matrons.', portrait: '/portraits/lowell-mill-girls-nora.png' },
     ],
     effects: [
       { cause: 'Factory labor concentrated young workers under rigid rules', effect: 'Modern labor law and workplace safety standards grew from these struggles', emoji: '🧵' },
@@ -452,8 +452,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#355E3B',
     description: 'Ports, rail lines, and timber camps are transforming the Pacific Northwest into a major industrial region tied to Pacific trade.',
     personas: [
-      { name: 'Eleanor', role: 'dockworker\'s daughter', age: 12, gender: 'female', origin: 'en-US', details: 'Born in 1901, she tallies crate marks on the dock and practices penmanship at night by kerosene lamp.' },
-      { name: 'Calvin', role: 'sawmill apprentice', age: 13, gender: 'male', origin: 'en-US', details: 'Files saw teeth, oils belt drives, and learns which fir boards earn the best price at the yard.' },
+      { name: 'Eleanor', role: 'dockworker\'s daughter', age: 12, gender: 'female', origin: 'en-US', details: 'Born in 1901, she tallies crate marks on the dock and practices penmanship at night by kerosene lamp.', portrait: '/portraits/pnw-industrial-age-eleanor.png' },
+      { name: 'Calvin', role: 'sawmill apprentice', age: 13, gender: 'male', origin: 'en-US', details: 'Files saw teeth, oils belt drives, and learns which fir boards earn the best price at the yard.', portrait: '/portraits/pnw-industrial-age-calvin.png' },
     ],
     effects: [
       { cause: 'PNW timber, rail, and port networks expanded quickly', effect: 'Modern supply chains still depend on ports, freight lines, and regional industry', emoji: '🚢' },
@@ -470,8 +470,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#F2C14E',
     description: 'Wabash becomes one of the first towns lit by electric streetlights, transforming night life and public space in a single evening.',
     personas: [
-      { name: 'Clara', role: 'shopkeeper\'s daughter', age: 12, gender: 'female', origin: 'en-US', details: 'On lighting night, she watches the square flare bright as day and hears neighbors cheer and pray at once.' },
-      { name: 'Eli', role: 'telegraph runner', age: 13, gender: 'male', origin: 'en-US', details: 'Runs telegraph slips between station and courthouse while men debate whether the new current might spark fires.' },
+      { name: 'Clara', role: 'shopkeeper\'s daughter', age: 12, gender: 'female', origin: 'en-US', details: 'On lighting night, she watches the square flare bright as day and hears neighbors cheer and pray at once.', portrait: '/portraits/wabash-electric-lights-clara.png' },
+      { name: 'Eli', role: 'telegraph runner', age: 13, gender: 'male', origin: 'en-US', details: 'Runs telegraph slips between station and courthouse while men debate whether the new current might spark fires.', portrait: '/portraits/wabash-electric-lights-eli.png' },
     ],
     effects: [
       { cause: 'Electric lighting extended safe activity into nighttime hours', effect: '24-hour cities and nighttime economies depend on reliable electric infrastructure', emoji: '💡' },
@@ -506,8 +506,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#5A5A5A',
     description: 'New labor protections begin to limit child work hours, creating a painful gap between reform ideals and household survival.',
     personas: [
-      { name: 'Lavinia', role: 'cotton mill piecer', age: 12, gender: 'female', origin: 'en-GB', details: 'Proud of her speed at the frames, she fears shorter shifts mean less wage money for bread and coal.' },
-      { name: 'Tom', role: 'spinner\'s assistant', age: 13, gender: 'male', origin: 'en-GB', details: 'Tracks every missed hour in a notebook and wonders whether safer work can still keep his siblings fed.' },
+      { name: 'Lavinia', role: 'cotton mill piecer', age: 12, gender: 'female', origin: 'en-GB', details: 'Proud of her speed at the frames, she fears shorter shifts mean less wage money for bread and coal.', portrait: '/portraits/manchester-factory-act-lavinia.png' },
+      { name: 'Tom', role: 'spinner\'s assistant', age: 13, gender: 'male', origin: 'en-GB', details: 'Tracks every missed hour in a notebook and wonders whether safer work can still keep his siblings fed.', portrait: '/portraits/manchester-factory-act-tom.png' },
     ],
     effects: [
       { cause: 'Factory laws targeted dangerous labor conditions for children', effect: 'Worker protections today still require balancing safety with real household economics', emoji: '🧷' },
@@ -524,8 +524,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#8B7355',
     description: 'Severe drought and erosion create black blizzards of dust. Families seal windows with cloth and struggle to keep farms alive.',
     personas: [
-      { name: 'Ruby', role: 'school student', age: 12, gender: 'female', origin: 'en-US', details: 'Pins wet cloth over her nose for school and sweeps a fresh line of grit from window sills each evening.' },
-      { name: 'Wes', role: 'farm boy', age: 13, gender: 'male', origin: 'en-US', details: 'Rides fence lines after black blizzards, then contour-plows with his father to keep topsoil from blowing east.' },
+      { name: 'Ruby', role: 'school student', age: 12, gender: 'female', origin: 'en-US', details: 'Pins wet cloth over her nose for school and sweeps a fresh line of grit from window sills each evening.', portrait: '/portraits/dust-bowl-plains-ruby.png' },
+      { name: 'Wes', role: 'farm boy', age: 13, gender: 'male', origin: 'en-US', details: 'Rides fence lines after black blizzards, then contour-plows with his father to keep topsoil from blowing east.', portrait: '/portraits/dust-bowl-plains-wes.png' },
     ],
     effects: [
       { cause: 'Unsustainable plowing and drought triggered massive soil loss', effect: 'Soil conservation and sustainable farming are now core agricultural policy', emoji: '🌪️' },
@@ -542,8 +542,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#4B5D67',
     description: 'During the Blitz, many children are evacuated from London to the countryside, separated from family for safety.',
     personas: [
-      { name: 'Maggie', role: 'evacuated schoolgirl', age: 11, gender: 'female', origin: 'en-GB', details: 'Keeps her gas mask box by the desk, writes Mum each Sunday, and counts days by letters received.' },
-      { name: 'Peter', role: 'London evacuee', age: 12, gender: 'male', origin: 'en-GB', details: 'Learns milking before dawn in the village, then listens for wireless news about raids back in London.' },
+      { name: 'Maggie', role: 'evacuated schoolgirl', age: 11, gender: 'female', origin: 'en-GB', details: 'Keeps her gas mask box by the desk, writes Mum each Sunday, and counts days by letters received.', portrait: '/portraits/london-blitz-evacuation-maggie.png' },
+      { name: 'Peter', role: 'London evacuee', age: 12, gender: 'male', origin: 'en-GB', details: 'Learns milking before dawn in the village, then listens for wireless news about raids back in London.', portrait: '/portraits/london-blitz-evacuation-peter.png' },
     ],
     effects: [
       { cause: 'Mass child evacuation moved millions away from bombing zones', effect: 'Emergency relocation plans still guide disaster response for families', emoji: '🚂' },
@@ -560,8 +560,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#7A4E2D',
     description: 'Buganda\'s court maneuvers between British, French, and Arab interests, using diplomacy and administration to defend political autonomy.',
     personas: [
-      { name: 'Mirembe', role: 'court page and copyist', age: 13, gender: 'female', origin: 'en-GB', details: 'Carries sealed messages between chiefs and foreign envoys, then copies outcomes into palace records.' },
-      { name: 'Kato', role: 'drum signal apprentice', age: 12, gender: 'male', origin: 'en-GB', details: 'Learns court rhythms that announce meetings, legal decisions, and urgent diplomatic arrivals.' },
+      { name: 'Mirembe', role: 'court page and copyist', age: 13, gender: 'female', origin: 'en-GB', details: 'Carries sealed messages between chiefs and foreign envoys, then copies outcomes into palace records.', portrait: '/portraits/buganda-diplomacy-mirembe.png' },
+      { name: 'Kato', role: 'drum signal apprentice', age: 12, gender: 'male', origin: 'en-GB', details: 'Learns court rhythms that announce meetings, legal decisions, and urgent diplomatic arrivals.', portrait: '/portraits/buganda-diplomacy-kato.png' },
     ],
     effects: [
       { cause: 'Buganda used skilled administration and diplomacy under colonial pressure', effect: 'Smaller states today still leverage institutions and negotiation to protect sovereignty', emoji: '🏛️' },
@@ -578,8 +578,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#6F8FA8',
     description: 'Inupiat families use detailed sea-ice knowledge, weather reading, and seasonal travel routes while outside schooling systems rapidly expand.',
     personas: [
-      { name: 'Tarkik', role: 'young ice observer', age: 10, gender: 'male', origin: 'en-US', details: 'Learns snow names, wind shifts, and ice sounds from elders, then hears teachers insist those words do not belong in class.' },
-      { name: 'Naluk', role: 'sled runner', age: 11, gender: 'female', origin: 'en-US', details: 'Tests trail firmness with a staff and helps map safe routes where one wrong turn can break through thin ice.' },
+      { name: 'Tarkik', role: 'young ice observer', age: 10, gender: 'male', origin: 'en-US', details: 'Learns snow names, wind shifts, and ice sounds from elders, then hears teachers insist those words do not belong in class.', portrait: '/portraits/utqiagvik-knowledge-tarkik.png' },
+      { name: 'Naluk', role: 'sled runner', age: 11, gender: 'female', origin: 'en-US', details: 'Tests trail firmness with a staff and helps map safe routes where one wrong turn can break through thin ice.', portrait: '/portraits/utqiagvik-knowledge-naluk.png' },
     ],
     effects: [
       { cause: 'Arctic survival relied on precise, place-based environmental vocabulary', effect: 'Indigenous ecological knowledge is now vital to climate science and adaptation planning', emoji: '🧊' },
@@ -596,8 +596,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#6A8799',
     description: 'Families balance hunting knowledge with mission-school routines as church administration shifts at the end of the Moravian era.',
     personas: [
-      { name: 'Quloqutsuk', role: 'hunting-family student', age: 9, gender: 'male', origin: 'en-GB', details: 'Learns sled and kayak routes at home, then recites lessons in class while adults debate which customs must not be lost.' },
-      { name: 'Aputsiaq', role: 'dog-team helper', age: 11, gender: 'female', origin: 'en-GB', details: 'Checks sea-ice edges before travel and tracks winter by light and dark more than by calendar dates.' },
+      { name: 'Quloqutsuk', role: 'hunting-family student', age: 9, gender: 'male', origin: 'en-GB', details: 'Learns sled and kayak routes at home, then recites lessons in class while adults debate which customs must not be lost.', portrait: '/portraits/greenland-mission-transition-quloqutsuk.png' },
+      { name: 'Aputsiaq', role: 'dog-team helper', age: 11, gender: 'female', origin: 'en-GB', details: 'Checks sea-ice edges before travel and tracks winter by light and dark more than by calendar dates.', portrait: '/portraits/greenland-mission-transition-aputsiaq.png' },
     ],
     effects: [
       { cause: 'Arctic travel systems depended on animal power, sea ice, and seasonal light', effect: 'Polar infrastructure and safety planning still rely on local environmental knowledge', emoji: '🛷' },
@@ -614,8 +614,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#7A6C5D',
     description: 'Schools adopt a new Latin-based Uzbek alphabet while many families still read older Perso-Arabic writing at home.',
     personas: [
-      { name: 'Amina', role: 'literacy student', age: 12, gender: 'female', origin: 'ru', details: 'Uses new textbooks at school, then helps elders sound out official notices written in unfamiliar letters.' },
-      { name: 'Rustam', role: 'poster runner', age: 11, gender: 'male', origin: 'ru', details: 'Pins up new alphabet charts and watches neighbors argue over whether reform opens doors or erases memory.' },
+      { name: 'Amina', role: 'literacy student', age: 12, gender: 'female', origin: 'ru', details: 'Uses new textbooks at school, then helps elders sound out official notices written in unfamiliar letters.', portrait: '/portraits/tashkent-script-reform-amina.png' },
+      { name: 'Rustam', role: 'poster runner', age: 11, gender: 'male', origin: 'ru', details: 'Pins up new alphabet charts and watches neighbors argue over whether reform opens doors or erases memory.', portrait: '/portraits/tashkent-script-reform-rustam.png' },
     ],
     effects: [
       { cause: 'Script reform rapidly changed literacy tools across one generation', effect: 'Writing systems and standards still shape who can access education and public life', emoji: '🔤' },
@@ -632,8 +632,8 @@ export const TIME_PERIODS: TimePeriod[] = [
     color: '#7C5A3A',
     description: 'Coal towns and mountain communities face rapid economic change while local music, craftsmanship, and family networks stay strong.',
     personas: [
-      { name: 'Ruth Ann', role: 'radio station helper', age: 12, gender: 'female', origin: 'en-US', details: 'Born in 1956, she cues bluegrass records at the station and tapes porch stories from older neighbors.' },
-      { name: 'Dale', role: 'auto shop student', age: 13, gender: 'male', origin: 'en-US', details: 'After school he tunes carburetors in a cinder-block garage and tests trucks on steep holler roads.' },
+      { name: 'Ruth Ann', role: 'radio station helper', age: 12, gender: 'female', origin: 'en-US', details: 'Born in 1956, she cues bluegrass records at the station and tapes porch stories from older neighbors.', portrait: '/portraits/appalachia-midcentury-ruth-ann.png' },
+      { name: 'Dale', role: 'auto shop student', age: 13, gender: 'male', origin: 'en-US', details: 'After school he tunes carburetors in a cinder-block garage and tests trucks on steep holler roads.', portrait: '/portraits/appalachia-midcentury-dale.png' },
     ],
     effects: [
       { cause: 'Communities adapted as energy and mining jobs shifted', effect: 'Workforce retraining and regional investment are still central policy issues', emoji: '🛠️' },
