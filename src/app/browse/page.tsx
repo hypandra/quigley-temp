@@ -21,6 +21,23 @@ interface PersonaBrowseItem {
   portrait?: string
 }
 
+const CHUNK_SIZE_YEARS = 500
+
+function formatYear(year: number): string {
+  if (year < 0) return `${Math.abs(year)} BCE`
+  if (year === 0) return '0 CE'
+  return `${year} CE`
+}
+
+function getYearChunkStart(year: number): number {
+  return Math.floor(year / CHUNK_SIZE_YEARS) * CHUNK_SIZE_YEARS
+}
+
+function getYearChunkLabel(start: number): string {
+  const end = start + CHUNK_SIZE_YEARS - 1
+  return `${formatYear(start)} to ${formatYear(end)}`
+}
+
 function buildItems(): PersonaBrowseItem[] {
   function continentFromCoords([lng, lat]: [number, number]): string {
     if (lat <= -10 && lng >= 110) return 'Oceania'
@@ -52,18 +69,28 @@ function buildItems(): PersonaBrowseItem[] {
 
 export default function BrowsePage() {
   const [query, setQuery] = useState('')
-  const [eraFilter, setEraFilter] = useState('all')
+  const [timeChunkFilter, setTimeChunkFilter] = useState('all')
   const [continentFilter, setContinentFilter] = useState('all')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [sortOrder, setSortOrder] = useState<'random' | 'asc' | 'desc'>('random')
   const items = useMemo(() => buildItems(), [])
-  const eras = useMemo(
-    () => Array.from(new Set(items.map(item => item.era))).sort((a, b) => a.localeCompare(b)),
-    [items]
-  )
+  const timeChunks = useMemo(() => {
+    const starts = Array.from(new Set(items.map(item => getYearChunkStart(item.year)))).sort((a, b) => a - b)
+    return starts.map(start => ({
+      value: String(start),
+      label: getYearChunkLabel(start),
+    }))
+  }, [items])
   const continents = useMemo(
     () => Array.from(new Set(items.map(item => item.continent))).sort((a, b) => a.localeCompare(b)),
     [items]
   )
+  const randomRank = useMemo(() => {
+    const rank = new Map<string, number>()
+    for (const item of items) {
+      rank.set(`${item.periodId}-${item.name}`, Math.random())
+    }
+    return rank
+  }, [items])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -78,16 +105,20 @@ export default function BrowsePage() {
         item.details,
       ].join(' ').toLowerCase().includes(q)
 
-      const matchesEra = eraFilter === 'all' || item.era === eraFilter
+      const matchesTimeChunk = timeChunkFilter === 'all' || getYearChunkStart(item.year) === Number(timeChunkFilter)
       const matchesContinent = continentFilter === 'all' || item.continent === continentFilter
 
-      return matchesQuery && matchesEra && matchesContinent
+      return matchesQuery && matchesTimeChunk && matchesContinent
     })
 
-    return [...filteredItems].sort((a, b) => (
-      sortOrder === 'asc' ? a.year - b.year : b.year - a.year
-    ))
-  }, [items, query, eraFilter, continentFilter, sortOrder])
+    return [...filteredItems].sort((a, b) => {
+      if (sortOrder === 'asc') return a.year - b.year
+      if (sortOrder === 'desc') return b.year - a.year
+      const aRank = randomRank.get(`${a.periodId}-${a.name}`) ?? 0
+      const bRank = randomRank.get(`${b.periodId}-${b.name}`) ?? 0
+      return aRank - bRank
+    })
+  }, [items, query, timeChunkFilter, continentFilter, sortOrder, randomRank])
 
   return (
     <main className="min-h-dvh px-4 py-8 md:px-8">
@@ -113,16 +144,16 @@ export default function BrowsePage() {
 
         <div className="grid gap-3 md:grid-cols-4">
           <label className="space-y-1">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">Era</span>
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">Time Chunk</span>
             <select
-              value={eraFilter}
-              onChange={e => setEraFilter(e.target.value)}
+              value={timeChunkFilter}
+              onChange={e => setTimeChunkFilter(e.target.value)}
               className="h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm"
-              aria-label="Filter by era"
+              aria-label="Filter by time chunk"
             >
-              <option value="all">All eras</option>
-              {eras.map(era => (
-                <option key={era} value={era}>{era}</option>
+              <option value="all">All time</option>
+              {timeChunks.map(chunk => (
+                <option key={chunk.value} value={chunk.value}>{chunk.label}</option>
               ))}
             </select>
           </label>
@@ -146,10 +177,11 @@ export default function BrowsePage() {
             <span className="text-xs uppercase tracking-wider text-muted-foreground">Sort by time</span>
             <select
               value={sortOrder}
-              onChange={e => setSortOrder(e.target.value as 'asc' | 'desc')}
+              onChange={e => setSortOrder(e.target.value as 'random' | 'asc' | 'desc')}
               className="h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm"
               aria-label="Sort by time"
             >
+              <option value="random">Random (default)</option>
               <option value="asc">Oldest → Newest</option>
               <option value="desc">Newest → Oldest</option>
             </select>
@@ -160,9 +192,9 @@ export default function BrowsePage() {
               type="button"
               onClick={() => {
                 setQuery('')
-                setEraFilter('all')
+                setTimeChunkFilter('all')
                 setContinentFilter('all')
-                setSortOrder('asc')
+                setSortOrder('random')
               }}
               className="h-10 w-full rounded-md border border-border bg-secondary/40 px-3 text-sm hover:bg-secondary/70"
             >
@@ -204,7 +236,7 @@ export default function BrowsePage() {
                 <p className="text-sm text-muted-foreground line-clamp-4">{item.details}</p>
                 <Link
                   href={`/?era=${encodeURIComponent(item.periodId)}&persona=${encodeURIComponent(item.name)}`}
-                  className="inline-flex rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                  className="inline-flex self-start rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 >
                   Talk to {item.name}
                 </Link>
