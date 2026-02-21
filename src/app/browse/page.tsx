@@ -9,7 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 interface PersonaBrowseItem {
   periodId: string
   era: string
+  year: number
   yearLabel: string
+  continent: string
   location: string
   periodColor: string
   name: string
@@ -20,11 +22,23 @@ interface PersonaBrowseItem {
 }
 
 function buildItems(): PersonaBrowseItem[] {
+  function continentFromCoords([lng, lat]: [number, number]): string {
+    if (lat <= -10 && lng >= 110) return 'Oceania'
+    if (lat >= 7 && lat <= 83 && lng >= -168 && lng <= -52) return 'North America'
+    if (lat <= 15 && lng >= -92 && lng <= -34) return 'South America'
+    if (lat >= 35 && lng >= -25 && lng <= 45) return 'Europe'
+    if (lat >= -35 && lat <= 37 && lng >= -20 && lng <= 55) return 'Africa'
+    if (lat >= -10 && lng >= 95 && lng <= 180) return 'Asia'
+    return 'Other'
+  }
+
   return TIME_PERIODS.flatMap(period =>
     period.personas.map(persona => ({
       periodId: period.id,
       era: period.era,
+      year: period.year,
       yearLabel: period.yearLabel,
+      continent: continentFromCoords(period.coordinates),
       location: period.location,
       periodColor: period.color,
       name: persona.name,
@@ -38,13 +52,24 @@ function buildItems(): PersonaBrowseItem[] {
 
 export default function BrowsePage() {
   const [query, setQuery] = useState('')
+  const [eraFilter, setEraFilter] = useState('all')
+  const [continentFilter, setContinentFilter] = useState('all')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const items = useMemo(() => buildItems(), [])
+  const eras = useMemo(
+    () => Array.from(new Set(items.map(item => item.era))).sort((a, b) => a.localeCompare(b)),
+    [items]
+  )
+  const continents = useMemo(
+    () => Array.from(new Set(items.map(item => item.continent))).sort((a, b) => a.localeCompare(b)),
+    [items]
+  )
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return items
-    return items.filter(item =>
-      [
+
+    const filteredItems = items.filter(item => {
+      const matchesQuery = !q || [
         item.name,
         item.role,
         item.era,
@@ -52,8 +77,17 @@ export default function BrowsePage() {
         item.location,
         item.details,
       ].join(' ').toLowerCase().includes(q)
-    )
-  }, [items, query])
+
+      const matchesEra = eraFilter === 'all' || item.era === eraFilter
+      const matchesContinent = continentFilter === 'all' || item.continent === continentFilter
+
+      return matchesQuery && matchesEra && matchesContinent
+    })
+
+    return [...filteredItems].sort((a, b) => (
+      sortOrder === 'asc' ? a.year - b.year : b.year - a.year
+    ))
+  }, [items, query, eraFilter, continentFilter, sortOrder])
 
   return (
     <main className="min-h-dvh px-4 py-8 md:px-8">
@@ -77,9 +111,69 @@ export default function BrowsePage() {
           <p className="text-sm text-muted-foreground">{filtered.length} match{filtered.length === 1 ? '' : 'es'}</p>
         </div>
 
+        <div className="grid gap-3 md:grid-cols-4">
+          <label className="space-y-1">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">Era</span>
+            <select
+              value={eraFilter}
+              onChange={e => setEraFilter(e.target.value)}
+              className="h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+              aria-label="Filter by era"
+            >
+              <option value="all">All eras</option>
+              {eras.map(era => (
+                <option key={era} value={era}>{era}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="space-y-1">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">Continent</span>
+            <select
+              value={continentFilter}
+              onChange={e => setContinentFilter(e.target.value)}
+              className="h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+              aria-label="Filter by continent"
+            >
+              <option value="all">All continents</option>
+              {continents.map(continent => (
+                <option key={continent} value={continent}>{continent}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="space-y-1">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">Sort by time</span>
+            <select
+              value={sortOrder}
+              onChange={e => setSortOrder(e.target.value as 'asc' | 'desc')}
+              className="h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+              aria-label="Sort by time"
+            >
+              <option value="asc">Oldest → Newest</option>
+              <option value="desc">Newest → Oldest</option>
+            </select>
+          </label>
+
+          <div className="flex items-end">
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('')
+                setEraFilter('all')
+                setContinentFilter('all')
+                setSortOrder('asc')
+              }}
+              className="h-10 w-full rounded-md border border-border bg-secondary/40 px-3 text-sm hover:bg-secondary/70"
+            >
+              Reset filters
+            </button>
+          </div>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map(item => (
-            <Card key={`${item.periodId}-${item.name}`} className="overflow-hidden">
+            <Card key={`${item.periodId}-${item.name}`} className="overflow-hidden h-full flex flex-col">
               <CardHeader className="space-y-3">
                 <div className="flex items-center gap-3">
                   {item.portrait ? (
@@ -106,7 +200,7 @@ export default function BrowsePage() {
                   <p className="text-muted-foreground">{item.location} · {item.yearLabel}</p>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="flex flex-1 flex-col justify-between gap-3">
                 <p className="text-sm text-muted-foreground line-clamp-4">{item.details}</p>
                 <Link
                   href={`/?era=${encodeURIComponent(item.periodId)}&persona=${encodeURIComponent(item.name)}`}
