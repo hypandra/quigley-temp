@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, Suspense } from 'react'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { TimePeriod, Persona, TIME_PERIODS, getRandomPeriod, getRandomPersona } from '@/lib/time-periods'
 
@@ -151,6 +152,7 @@ interface Connection {
 }
 
 type AppState = 'home' | 'arriving' | 'chatting' | 'effects' | 'timeline' | 'globe'
+const SHOW_CONNECTION_THREADS = false
 
 function syncUrlParams(period: TimePeriod | null, persona: Persona | null) {
   const url = new URL(window.location.href)
@@ -334,7 +336,7 @@ function Home() {
     setState('arriving')
     syncUrlParams(period, persona)
 
-    if (prevStop) {
+    if (prevStop && SHOW_CONNECTION_THREADS) {
       setConnectionsLoading(true)
       const connController = new AbortController()
       connectionsAbortRef.current = connController
@@ -467,30 +469,52 @@ function Home() {
   // HOME SCREEN
   if (state === 'home') {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center p-6 text-center">
-        <div className="max-w-md space-y-8">
-          <div className="space-y-3">
-            <h1 className="text-5xl font-bold tracking-tight text-primary text-balance">Rippled Echoes</h1>
-            <p className="text-lg text-muted-foreground text-pretty">You are here and now. Where will you go?</p>
-          </div>
+      <div className="min-h-dvh flex flex-col p-6">
+        <div className="flex-1 flex items-center justify-center text-center">
+          <div className="max-w-md space-y-8">
+            <div className="space-y-3">
+              <h1 className="text-5xl font-bold tracking-tight text-primary text-balance">Rippled Echoes</h1>
+              <p className="text-lg text-muted-foreground text-pretty">You are here and now. Where will you go?</p>
+            </div>
 
-          <p className="text-sm text-muted-foreground leading-relaxed text-pretty">
-            Jump to a random moment in history. Meet someone who lived there.
-            Ask them anything about their life. Then see how their world shaped yours.
-          </p>
-
-          <button
-            onClick={jump}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground transition-all hover:scale-105 active:scale-95 animate-pulse-glow"
-          >
-            Jump into the Past
-          </button>
-
-          {journey.length > 0 && (
-            <p className="text-xs text-muted-foreground text-pretty tabular-nums">
-              {journey.length} {journey.length === 1 ? 'era' : 'eras'} visited
+            <p className="text-sm text-muted-foreground leading-relaxed text-pretty">
+              Jump to a random moment in history. Meet someone who lived there.
+              Ask them anything about their life. Then see how their world shaped yours.
             </p>
-          )}
+
+            <button
+              onClick={jump}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground transition-all hover:scale-105 active:scale-95 animate-pulse-glow"
+            >
+              Jump into the Past
+            </button>
+
+            {journey.length > 0 && (
+              <p className="text-xs text-muted-foreground text-pretty tabular-nums">
+                {journey.length} {journey.length === 1 ? 'era' : 'eras'} visited
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="mx-auto mt-6 w-full max-w-md rounded-xl border bg-card/60 p-3">
+          <div className="space-y-3">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Explore More</p>
+            <div className="flex items-center justify-center gap-2">
+              <Link
+                href="/browse"
+                className="inline-flex rounded-lg border border-border px-3 py-2 text-sm hover:bg-secondary/60"
+              >
+                Browse Personas
+              </Link>
+              <Link
+                href="/changelog"
+                className="inline-flex rounded-lg border border-border px-3 py-2 text-sm hover:bg-secondary/60"
+              >
+                Changelog
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -541,7 +565,7 @@ function Home() {
           <p className={cn('text-sm text-muted-foreground leading-relaxed text-pretty', stepClass(3))}>
             {currentStop.period.description}
           </p>
-          {previousStop && arrivalStep >= 3 && (
+          {SHOW_CONNECTION_THREADS && previousStop && arrivalStep >= 3 && (
             <div className="space-y-3 transition-all duration-500 opacity-100 translate-y-0">
               {connectionsLoading ? (
                 <p className="text-xs text-muted-foreground animate-pulse">
@@ -669,7 +693,7 @@ function Home() {
             </div>
             <div className="flex-1 overflow-y-auto p-4">
               <div className="max-w-md mx-auto space-y-4">
-                {connections.length > 0 && (
+                {SHOW_CONNECTION_THREADS && connections.length > 0 && (
                   <div className="space-y-3 pb-2">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Your journey thread</p>
                     {connections.map((conn, i) => (
